@@ -14,7 +14,7 @@
 - 每步限时（默认 120 秒），超时前提醒，超时判负
 - 悔棋、求和、认输；重启后对局自动恢复
 - 适配 LLOneBot（OneBot v11）和 QQ 官方机器人（[QQBot-Plugin](https://github.com/Tomato-0914/QQBot-Plugin)），官方机器人下附带按钮
-- `#棋类更新` 一键更新并自动重启
+- `#棋更新` 一键更新并自动重启
 
 ## 安装
 
@@ -59,8 +59,8 @@ git clone --depth 1 https://github.com/Tomato-0914/Chess-Plugin ./plugins/Chess-
 
 | 指令 | 说明 |
 | --- | --- |
-| `#棋类更新` | `git pull`，展示更新日志；`package.json` 变化时自动 `pnpm install`；PM2 守护下自动重启 |
-| `#棋类强制更新` | 丢弃本地改动，与远程分支保持一致，其余同上 |
+| `#棋更新` | `git pull`，展示更新日志；`package.json` 变化时自动 `pnpm install`；PM2 守护下自动重启 |
+| `#棋强制更新` | 丢弃本地改动，与远程分支保持一致，其余同上 |
 | `#棋类版本` | 当前版本与最近更新内容 |
 | `#棋类帮助` | 插件总帮助 |
 

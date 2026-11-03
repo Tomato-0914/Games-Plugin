@@ -160,8 +160,11 @@ test("多 Bot 同群：只有开局的 Bot 处理", async () => {
 })
 
 test("更新指令仅主人可用", async () => {
-  const r = await dispatch({ ...A, msg: "#棋类更新" })
-  assert.match(textOf(r.replies), /只有主人/)
+  for (const msg of ["#棋更新", "棋更新", "#棋强制更新"]) {
+    const r = await dispatch({ ...A, msg })
+    assert.match(textOf(r.replies), /只有主人/, msg)
+  }
+  assert.equal((await dispatch({ ...A, msg: "#棋类更新" })).handled, null)
 })
 
 test("棋盘使用内置字体", async () => {

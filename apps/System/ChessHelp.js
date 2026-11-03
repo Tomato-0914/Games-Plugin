@@ -20,7 +20,7 @@ export class ChessHelp extends plugin {
       "  #发起象棋　#加入象棋　#人机象棋",
       "",
       "🔧 插件维护（主人）",
-      "  #棋类更新　#棋类强制更新　#棋类版本",
+      "  #棋更新　#棋强制更新　#棋类版本",
     ].join("\n")
     const buttons = makeButtons(e, [[
       { text: "象棋帮助", cmd: "#象棋帮助" },
