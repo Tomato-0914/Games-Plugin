@@ -23,6 +23,29 @@ xiangqi:
   # 是否允许私聊人机对战
   allowPrivate: true
 
+# 扫雷（单人）
+minesweeper:
+  # 不写难度时的默认难度（官方机器人下会先发按钮选择）：初级 / 中级 / 高级
+  defaultLevel: 初级
+  # 无猜模式：只生成靠推理就能扫完的棋盘
+  noGuess: true
+  # 多少秒没有操作判定失败，0 为不限
+  idleTimeout: 600
+  # 判定失败前多少秒提醒一次，0 为不提醒
+  idleWarnBefore: 120
+  # 每盘可用提示次数，0 为关闭提示
+  hintLimit: 1
+  # 每次提示计时增加的秒数
+  hintPenalty: 10
+  # 开局时“自动翻开”的默认状态（数字周围旗数对得上时自动展开），玩家可用 #扫雷自动 开/关 切换
+  autoOpen: false
+  # 一条消息最多操作的格子数
+  maxBatch: 30
+  # 自定义难度的上限：行数（最多 26）、列数、雷数占格子数的比例
+  maxRows: 20
+  maxCols: 30
+  maxDensity: 0.3
+
 # AI 引擎
 engine:
   # 同时进行的 AI 思考数量（每个占用一个 CPU 线程）

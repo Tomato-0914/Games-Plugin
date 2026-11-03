@@ -17,4 +17,18 @@ export const GAMES = [
       { cmd: "#人机象棋", desc: "和 Bot 下棋" },
     ],
   },
+  {
+    id: "Minesweeper",
+    name: "扫雷",
+    category: "益智",
+    piece: "雷",
+    desc: "单人模式 · 初级 / 中级 / 高级 / 自定义",
+    help: "#扫雷帮助",
+    commands: [
+      { cmd: "#扫雷帮助", desc: "玩法与全部指令" },
+      { cmd: "#扫雷", desc: "开一盘" },
+      { cmd: "C5 / 旗C5", desc: "翻开 / 插旗" },
+      { cmd: "#扫雷提示", desc: "翻开一个安全格" },
+    ],
+  },
 ]

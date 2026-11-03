@@ -1,11 +1,11 @@
 {
   "name": "Games-Plugin",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "TRSS-Yunzai 群聊小游戏插件：中国象棋等",
   "author": "Tomato",
   "type": "module",
   "scripts": {
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test --test-concurrency=1 \"test/*.test.js\""
   },
   "dependencies": {}
 }

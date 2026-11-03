@@ -1,10 +1,12 @@
 <div align="center">
   <h1>Games-Plugin</h1>
   <p><a href="https://github.com/TimeRainStarSky/Yunzai" target="_blank">TRSS-Yunzai</a> 群聊小游戏插件</p>
-  <p>已上线：中国象棋（Chinese_Chess）—— 群友双人对战 / 人机对战　·　开发中：扫雷</p>
+  <p>已上线：中国象棋（双人 / 人机）　·　扫雷（单人）</p>
 </div>
 
 ## 功能
+
+### 中国象棋
 
 - 群内双人对战：一人发起、一人加入，加入后立即开局；红黑可以指定，也可以随机
 - 人机对战：群聊、私聊都可以，四档难度（入门 / 简单 / 普通 / 困难），AI 在独立线程中思考，不卡 Bot
@@ -14,6 +16,18 @@
 - 每步限时（默认 120 秒），超时前提醒，超时判负
 - 悔棋、求和、认输；重启后对局自动恢复
 - 适配 LLOneBot（OneBot v11）和 QQ 官方机器人（[QQBot-Plugin](https://github.com/Tomato-0914/QQBot-Plugin)），官方机器人下附带按钮
+
+### 扫雷
+
+- 初级 9×9 / 中级 16×16 / 高级 16×30，也可以自定义大小和雷数
+- 第一下必定安全；**无猜模式**：只生成靠推理就能扫完的棋盘
+- 坐标直接发：`C5` 翻开，`旗C5` 插旗，`c1c2c3` 一次多格；对已翻开的数字再发一次坐标即快速翻开
+- 提示（每盘次数可配置）、自动翻开开关
+- 一个群同时一盘，私聊每人一盘；10 分钟无操作提醒后判定失败；重启后恢复
+
+### 通用
+
+- `#游戏帮助` 列出所有游戏，帮助均为图片
 - `#游戏更新` 一键更新并自动重启
 
 ## 安装
@@ -58,12 +72,30 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 英文指令：`#Chinese_Chess create | join | ai | board | undo | draw | resign | end | help`，
 人机难度也可以写 `beginner / easy / normal / hard`，颜色写 `red / black`。
 
-### 走法写法
+### 象棋走法写法
 
 - 中文纵线记谱：`棋子 + 起始纵线 + 进/退/平 + 目标`，例如 `炮二平五`、`马8进7`、`车一进一`
 - 同一纵线有两个同类棋子：`前车进一`、`后马退二`；三个兵：`前兵`、`中兵`、`后兵`
 - 红方习惯用中文数字、黑方习惯用阿拉伯数字，两种数字双方都能识别；繁体（`傌`、`俥`、`砲`）也能识别
 - 坐标：`h2e2`（列 a–i，行 0–9，红方在下），棋盘图四周印有坐标
+
+### 扫雷
+
+| 指令 | 说明 |
+| --- | --- |
+| `#扫雷帮助` | 扫雷玩法与指令（图片） |
+| `#扫雷` | 开一盘；官方机器人下不写难度时先发难度按钮，其他适配器默认初级 |
+| `#扫雷 初级` / `中级` / `高级` | 指定难度开局 |
+| `#扫雷 自定义 10 20 30` | 自定义：10 行、20 列、30 颗雷 |
+| `C5` / `旗C5` / `c1c2c3` | 翻开 / 插旗（再发一次取消）/ 一次多格 |
+| `#扫雷盘面` | 重新发送盘面 |
+| `#扫雷提示` | 翻开一个安全格（默认每盘 1 次，计时 +10 秒） |
+| `#扫雷自动 开` / `关` | 自动翻开：数字周围旗数对得上时自动展开 |
+| `#结束扫雷` | 放弃这一盘（本人、群管理或主人） |
+
+英文指令：`#Minesweeper start easy | medium | hard | custom 10 20 30`、`#Minesweeper board | hint | auto on | end | help`。
+
+坐标是“行字母 + 列数字”，大小写都可以；插旗也可以写 `标C5`、`!C5`。
 
 ### 插件维护（主人）
 
@@ -91,6 +123,15 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 | `xiangqi.aiUndoLimit` | `3` | 人机对战每局悔棋次数 |
 | `xiangqi.requestTimeout` | `60` | 悔棋、求和请求的有效时间（秒） |
 | `xiangqi.allowPrivate` | `true` | 是否允许私聊人机对战 |
+| `minesweeper.defaultLevel` | `初级` | 不写难度时的默认难度（官方机器人下先发按钮） |
+| `minesweeper.noGuess` | `true` | 无猜模式 |
+| `minesweeper.idleTimeout` | `600` | 多少秒无操作判定失败，0 不限 |
+| `minesweeper.idleWarnBefore` | `120` | 判定失败前多少秒提醒，0 不提醒 |
+| `minesweeper.hintLimit` | `1` | 每盘提示次数，0 关闭提示 |
+| `minesweeper.hintPenalty` | `10` | 每次提示计时增加的秒数 |
+| `minesweeper.autoOpen` | `false` | 开局时自动翻开的默认状态 |
+| `minesweeper.maxBatch` | `30` | 一条消息最多操作的格子数 |
+| `minesweeper.maxRows` / `maxCols` / `maxDensity` | `20` / `30` / `0.3` | 自定义难度上限（行最多 26） |
 | `engine.maxConcurrent` | `2` | 同时进行的 AI 思考数量 |
 | `qqbot.buttons` | `true` | 官方机器人下是否附带按钮 |
 | `render.textFallback` | `true` | 截图失败时改发文字棋盘 |
@@ -102,6 +143,8 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 - 同一个群里同时有官方机器人和 LLOneBot 时，对局只由开局的那个 Bot 处理，不会重复回复
 - 重复局面：一方一直将军（长将）判负，其他情况三次重复判和；“长捉”暂未判定
 - AI 是插件内置的搜索引擎（纯 JavaScript），不需要安装其他程序
+- 扫雷的坐标也只在**你自己有一盘进行中、整条消息就是坐标**时才处理；同一个人同时下象棋时，`h2e2` 这种四位坐标优先当作象棋走法
+- 官方机器人的被动回复只在用户发消息后 5 分钟内有效：扫雷 10 分钟闲置的提醒和判负消息会改用主动消息发送，受官方主动消息额度限制，可能发不出去（判定照常生效）
 
 ## 开发
 
@@ -109,9 +152,9 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 pnpm test   # 或 npm test
 ```
 
-测试覆盖：走法生成（perft）、特殊规则、记谱解析、AI、以及模拟 Yunzai 环境下的完整对局流程。
+测试覆盖：象棋走法生成（perft）、特殊规则、记谱解析、AI；扫雷规则、求解器正确性、无猜生成；以及模拟 Yunzai 环境下的完整对局流程。
 
-棋种逻辑在 `games/xiangqi/`，不依赖 Yunzai；`apps/` 负责指令和消息；`components/` 是各棋种共用的房间、渲染、AI 调度、配置和适配器工具，后续新棋种可以直接复用。
+每个游戏的规则在 `games/<游戏>/`，不依赖 Yunzai；`apps/` 负责指令和消息；`components/` 是共用的房间、截图、帮助图、AI 调度、配置和适配器工具。新增游戏时在 `components/Games.js` 登记，`#游戏帮助` 会自动列出。
 
 ## 致谢
 
