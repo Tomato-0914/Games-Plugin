@@ -71,12 +71,19 @@ function levelLabel(room) {
 
 function gameButtons(e, room) {
   const id = String(room.player.id)
-  return makeButtons(e, [[
-    { text: "盘面", cmd: "#扫雷盘面" },
-    { text: "提示", cmd: "#扫雷提示", permission: id },
-    { text: room.auto ? "自动翻开：开" : "自动翻开：关", cmd: "#扫雷自动", permission: id },
-    { text: "结束", cmd: "#结束扫雷", permission: id },
-  ]])
+  return makeButtons(e, [
+    // 输入按钮：填入“开”/“旗”，玩家补上坐标后发送
+    [
+      { text: "翻开", input: "开", permission: id, style: 1 },
+      { text: "插旗", input: "旗", permission: id, style: 1 },
+    ],
+    [
+      { text: "盘面", cmd: "#扫雷盘面" },
+      { text: "提示", cmd: "#扫雷提示", permission: id },
+      { text: room.auto ? "自动：开" : "自动：关", cmd: "#扫雷自动", permission: id },
+      { text: "结束", cmd: "#结束扫雷", permission: id },
+    ],
+  ])
 }
 
 function levelButtons(e, permission) {
@@ -216,7 +223,7 @@ export class Minesweeper extends plugin {
         { reg: reg("^#?(?:扫雷提示|Minesweeper\\s*hint)$"), fnc: "hint" },
         { reg: reg("^#?(?:扫雷自动(?:翻开)?|Minesweeper\\s*auto)\\s*(开|关|on|off)?$"), fnc: "auto" },
         { reg: START_RE, fnc: "start" },
-        { reg: /^\s*#?\s*(?:插旗|旗|标记|标|!|！)?\s*(?:[a-zA-Z]\d{1,2}[\s,，、]*)+$/, fnc: "ops", log: false },
+        { reg: /^\s*#?\s*(?:插旗|旗|标记|标|!|！|翻开|翻|开)?\s*(?:[a-zA-Z]\d{1,2}[\s,，、]*)+$/, fnc: "ops", log: false },
       ],
     })
   }
@@ -253,7 +260,7 @@ export class Minesweeper extends plugin {
           piece: "旗",
           color: "black",
           items: [
-            { cmd: "C5", desc: "翻开 C 行第 5 列（行字母 + 列数字）" },
+            { cmd: "C5", desc: "翻开 C 行第 5 列（行字母 + 列数字，也可以写 开C5）" },
             { cmd: "旗C5", desc: "插旗，再发一次取消（也可以写 标C5、!C5）" },
             { cmd: "c1c2c3", desc: "一次操作多格，空格、逗号可有可无" },
             { cmd: "已翻开的数字", desc: "再发一次坐标：旗数对得上时自动翻开周围" },

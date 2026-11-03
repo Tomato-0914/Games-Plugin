@@ -11,13 +11,20 @@ export function isQQBot(e) {
 /**
  * 生成按钮消息段，仅官方机器人生效，其他适配器返回 null
  * @param e 事件
- * @param rows 按钮行：[[{ text, cmd, permission }]]
+ * @param rows 按钮行：[[{ text, cmd, permission }]]；cmd 换成 input 为输入按钮（点击后把文字填入输入框，不直接发送）
  */
 export function makeButtons(e, rows) {
   if (!isQQBot(e) || Config.qqbot?.buttons === false) return null
   const seg = global.segment
   if (typeof seg?.button !== "function") return null
   return seg.button(...rows.filter(row => row.length).map(row => row.map(b => {
+    if (b.input !== undefined) {
+      // 群聊里输入按钮不能自动发送，只填入输入框
+      const button = { text: b.text, input: b.input, send: false }
+      if (b.permission) button.permission = b.permission
+      if (b.style !== undefined) button.QQBot = { render_data: { style: b.style } }
+      return button
+    }
     const button = {
       text: b.text,
       callback: b.cmd,

@@ -113,7 +113,15 @@ test("官方机器人：不写难度先发按钮；对局按钮", async () => {
   assert.equal(btn[2].permission, "111")
   assert.ok(!kv.has(KEY(`group:${g}`)))
   r = await dispatch({ ...A, group: g, msg: btn[0].callback, adapter: "QQBot" })
-  assert.match(textOf(r.replies), /\[按钮:盘面,提示,自动翻开：关,结束\]/)
+  assert.match(textOf(r.replies), /\[按钮:翻开,插旗,盘面,提示,自动：关,结束\]/)
+  const rows = r.replies.flat().find(m => m?.type === "button").data
+  assert.deepEqual(rows[0].map(b => [b.text, b.input, b.send, b.permission]), [["翻开", "开", false, "111"], ["插旗", "旗", false, "111"]])
+  assert.equal(rows[0][0].callback, undefined)
+  // 输入按钮填入的文字加坐标可以直接用
+  r = await dispatch({ ...A, group: g, msg: "开E5", adapter: "QQBot" })
+  assert.match(textOf(r.replies), /翻开 E5，打开了 \d+ 格/)
+  r = await dispatch({ ...A, group: g, msg: "旗 a1", adapter: "QQBot" })
+  assert.match(textOf(r.replies), /插旗：A1|A1 已经翻开/)
   r = await dispatch({ ...A, group: g, msg: "#结束扫雷", adapter: "QQBot" })
   assert.match(textOf(r.replies), /\[按钮:再来一盘,换个难度\]/)
   // 其他适配器不写难度直接开默认难度
