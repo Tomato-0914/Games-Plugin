@@ -1,7 +1,7 @@
 import { plugin, segment, Config, makeButtons, playerName, isAdmin } from "../../components/index.js"
 import { RoomStore } from "../../components/Room.js"
 import { runEngine } from "../../components/AI.js"
-import { screenshot } from "../../components/Render.js"
+import { screenshot, fontUrl } from "../../components/Render.js"
 import { XiangqiGame, RESULT_REASON } from "../../games/xiangqi/Game.js"
 import { RED, BLACK, iccsToMove } from "../../games/xiangqi/Board.js"
 import { looksLikeMove, sampleMoves } from "../../games/xiangqi/Notation.js"
@@ -144,6 +144,7 @@ async function boardMessage(e, room, parts = [], { status } = {}) {
     title,
     status,
     flip,
+    fontUrl,
   }), `xiangqi-${room.scope}`)
   const msg = []
   if (img) msg.push(img)

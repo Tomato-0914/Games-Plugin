@@ -26,7 +26,7 @@ git clone --depth 1 https://github.com/Tomato-0914/Chess-Plugin ./plugins/Chess-
 
 插件没有额外依赖，不需要 `pnpm install`。重启 Bot 即可使用。
 
-棋盘图片使用 Yunzai 自带的 puppeteer 渲染，与其他插件的帮助图片相同；系统里需要有中文字体（Linux 可安装 `fonts-wqy-zenhei` 或楷体字体）。
+棋盘图片使用 Yunzai 自带的 puppeteer 渲染，与其他插件的帮助图片相同。插件内置了霞鹜文楷字体（`resources/fonts/`），服务器不需要另外安装中文字体。
 
 ## 指令
 
@@ -86,7 +86,7 @@ git clone --depth 1 https://github.com/Tomato-0914/Chess-Plugin ./plugins/Chess-
 ## 说明
 
 - 双人对战中，每条群消息只有在**本群有进行中的对局、发送者是轮到的一方、内容就是一步棋**时才会被当作走子，平时聊天不受影响
-- QQ 官方机器人在群里需要 @机器人 才能收到消息，走子时也要 @
+- QQ 官方机器人开启“接收群内全部消息”后，走子不需要 @机器人；未开启时需要 @机器人 才能收到消息
 - 同一个群里同时有官方机器人和 LLOneBot 时，对局只由开局的那个 Bot 处理，不会重复回复
 - 重复局面：一方一直将军（长将）判负，其他情况三次重复判和；“长捉”暂未判定
 - AI 是插件内置的搜索引擎（纯 JavaScript），不需要安装其他程序
@@ -105,3 +105,4 @@ pnpm test   # 或 npm test
 
 - 更新功能参考 [Cheshire-Plugin](https://github.com/Cheshire-Plugin/Cheshire-Plugin)
 - 按钮写法参考 [QQBot-Plugin](https://github.com/Tomato-0914/QQBot-Plugin) 的 wiki
+- 棋盘字体：[霞鹜文楷](https://github.com/lxgw/LxgwWenKai)（SIL Open Font License 1.1，裁剪为 WOFF2 仅用于截图渲染）

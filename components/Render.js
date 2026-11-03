@@ -1,8 +1,14 @@
 /**
  * 棋盘截图：使用 Yunzai 自带的 puppeteer，失败时返回 null（调用方改发文字棋盘）
  */
+import fs from "node:fs"
 import path from "node:path"
+import { pathToFileURL } from "node:url"
 import { Plugin_Path, importYunzai } from "./index.js"
+
+/** 内置字体（霞鹜文楷），避免服务器缺少中文字体 */
+const FONT_FILE = path.join(Plugin_Path, "resources/fonts/LXGWWenKai-Medium.woff2")
+export const fontUrl = fs.existsSync(FONT_FILE) ? pathToFileURL(FONT_FILE).href : ""
 
 let renderer
 async function getRenderer() {

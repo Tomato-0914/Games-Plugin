@@ -163,3 +163,11 @@ test("更新指令仅主人可用", async () => {
   const r = await dispatch({ ...A, msg: "#棋类更新" })
   assert.match(textOf(r.replies), /只有主人/)
 })
+
+test("棋盘使用内置字体", async () => {
+  const { fontUrl } = await import("../components/Render.js")
+  const { renderHtml } = await import("../games/xiangqi/Render.js")
+  const { XiangqiGame } = await import("../games/xiangqi/Game.js")
+  assert.match(fontUrl, /^file:\/\/.*LXGWWenKai-Medium\.woff2$/)
+  assert.match(renderHtml(new XiangqiGame(), { fontUrl }), /@font-face \{ font-family: "ChessKai"; src: url\("file:/)
+})

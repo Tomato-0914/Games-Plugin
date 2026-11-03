@@ -20,7 +20,7 @@ const PAD_TOP = 64
 const PAD_BOTTOM = 84
 const W = CELL * 8 + PAD_X * 2
 const H = CELL * 9 + PAD_TOP + PAD_BOTTOM
-const FONT = `"KaiTi","STKaiti","Kaiti SC","AR PL UKai CN","Noto Serif CJK SC","Source Han Serif SC","WenQuanYi Zen Hei","Microsoft YaHei",serif`
+const FONT = `"ChessKai","KaiTi","STKaiti","Kaiti SC","AR PL UKai CN","Noto Serif CJK SC","Source Han Serif SC","WenQuanYi Zen Hei","Microsoft YaHei",serif`
 
 export const escapeHtml = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch])
 
@@ -139,9 +139,10 @@ ${out.join("\n")}
 /**
  * 生成整页 HTML
  * @param {import("./Game.js").XiangqiGame} game
- * @param {object} info { red, black, title, status, flip }
+ * @param {object} info { red, black, title, status, flip, fontUrl }
+ *   fontUrl：内置字体文件的 file:// 地址，为空时使用系统字体
  */
-export function renderHtml(game, { red = "红方", black = "黑方", title = "中国象棋", status = "", flip = false } = {}) {
+export function renderHtml(game, { red = "红方", black = "黑方", title = "中国象棋", status = "", flip = false, fontUrl = "" } = {}) {
   const turn = game.result ? 0 : game.side
   const last = game.lastRecord
   const lastText = last ? `${game.moveCount % 2 === 1 ? "红" : "黑"}：${last.cn}` : "尚未走子"
@@ -152,6 +153,7 @@ export function renderHtml(game, { red = "红方", black = "黑方", title = "�
   const bottom = flip ? player(-RED, black) : player(RED, red)
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><style>
+${fontUrl ? `@font-face { font-family: "ChessKai"; src: url("${fontUrl}") format("woff2"); font-display: block; }` : ""}
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #3b2a1a; font-family: ${FONT}; }
 #container { width: ${W + 32}px; padding: 16px; background: linear-gradient(160deg, #4a3320, #2c1e12); color: #f6e7c8; }
