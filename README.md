@@ -1,7 +1,7 @@
 <div align="center">
-  <h1>Chess-Plugin</h1>
-  <p><a href="https://github.com/TimeRainStarSky/Yunzai" target="_blank">TRSS-Yunzai</a> 棋类游戏插件</p>
-  <p>第一个棋种：中国象棋（Chinese_Chess）—— 群友双人对战 / 人机对战</p>
+  <h1>Game-Plugin</h1>
+  <p><a href="https://github.com/TimeRainStarSky/Yunzai" target="_blank">TRSS-Yunzai</a> 群聊小游戏插件</p>
+  <p>已上线：中国象棋（Chinese_Chess）—— 群友双人对战 / 人机对战　·　开发中：扫雷</p>
 </div>
 
 ## 功能
@@ -14,23 +14,31 @@
 - 每步限时（默认 120 秒），超时前提醒，超时判负
 - 悔棋、求和、认输；重启后对局自动恢复
 - 适配 LLOneBot（OneBot v11）和 QQ 官方机器人（[QQBot-Plugin](https://github.com/Tomato-0914/QQBot-Plugin)），官方机器人下附带按钮
-- `#棋更新` 一键更新并自动重启
+- `#游戏更新` 一键更新并自动重启
 
 ## 安装
 
 在 Yunzai 根目录执行：
 
 ```sh
-git clone --depth 1 https://github.com/Tomato-0914/Chess-Plugin ./plugins/Chess-Plugin
+git clone --depth 1 https://github.com/Tomato-0914/Game-Plugin ./plugins/Game-Plugin
 ```
 
 插件没有额外依赖，不需要 `pnpm install`。重启 Bot 即可使用。
 
 棋盘图片使用 Yunzai 自带的 puppeteer 渲染，与其他插件的帮助图片相同。插件内置了霞鹜文楷字体（`resources/fonts/`），服务器不需要另外安装中文字体。
 
+## 从 Chess-Plugin 升级
+
+仓库已从 `Chess-Plugin` 改名为 `Game-Plugin`，旧地址会自动跳转，已安装的插件发 `#游戏更新`（或旧指令 `#棋更新`）照常更新。
+
+- 插件文件夹可以继续叫 `plugins/Chess-Plugin`，不影响使用
+- 建议把远程地址改成新的：在插件目录执行 `git remote set-url origin https://github.com/Tomato-0914/Game-Plugin`
+- 进行中的对局、配置文件都不受影响
+
 ## 指令
 
-`#棋帮助` 列出插件里所有棋类游戏；每种棋的玩法用各自的帮助指令查看，例如 `#象棋帮助`。
+`#游戏帮助` 列出插件里所有游戏；每个游戏的玩法用各自的帮助指令查看，例如 `#象棋帮助`。
 
 ### 中国象棋
 
@@ -61,9 +69,12 @@ git clone --depth 1 https://github.com/Tomato-0914/Chess-Plugin ./plugins/Chess-
 
 | 指令 | 说明 |
 | --- | --- |
-| `#棋更新` | `git pull`，展示更新日志；`package.json` 变化时自动 `pnpm install`；PM2 守护下自动重启 |
-| `#棋强制更新` | 丢弃本地改动，与远程分支保持一致，其余同上 |
-| `#棋版本` | 当前版本与最近更新内容 |
+| `#游戏更新` | `git pull`，展示更新日志；`package.json` 变化时自动 `pnpm install`；PM2 守护下自动重启 |
+| `#游戏强制更新` | 丢弃本地改动，与远程分支保持一致，其余同上 |
+| `#游戏版本` | 当前版本与最近更新内容 |
+| `#游戏帮助` | 列出所有游戏 |
+
+改名前的 `#棋更新`、`#棋强制更新`、`#棋版本`、`#棋帮助` 暂时仍可使用。
 
 ## 配置
 

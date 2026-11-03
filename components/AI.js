@@ -65,7 +65,7 @@ export function runEngine(type, data) {
       try {
         resolve(await runInWorker(type, data))
       } catch (err) {
-        logger?.warn?.(`[Chess-Plugin] AI 线程失败，改用主线程：${err.message}`)
+        logger?.warn?.(`[Game-Plugin] AI 线程失败，改用主线程：${err.message}`)
         try {
           resolve(await runInline(type, data))
         } catch (err2) {

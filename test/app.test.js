@@ -6,8 +6,8 @@ let dispatch
 before(async () => {
   const apps = await loadApps([
     new URL("../apps/Xiangqi/Xiangqi.js", import.meta.url).href,
-    new URL("../apps/System/ChessHelp.js", import.meta.url).href,
-    new URL("../apps/System/ChessUpdate.js", import.meta.url).href,
+    new URL("../apps/System/GameHelp.js", import.meta.url).href,
+    new URL("../apps/System/GameUpdate.js", import.meta.url).href,
   ])
   dispatch = makeDispatcher(apps)
 })
@@ -16,7 +16,7 @@ const A = { user: "111", nickname: "小明" }
 const B = { user: "222", nickname: "小红" }
 
 test("帮助与英文指令", async () => {
-  for (const msg of ["#象棋", "#象棋帮助", "#Chinese_Chess", "#chinese_chess help", "#棋帮助"]) {
+  for (const msg of ["#象棋", "#象棋帮助", "#Chinese_Chess", "#chinese_chess help", "#游戏帮助", "#棋帮助"]) {
     const r = await dispatch({ msg })
     assert.ok(r.handled, msg)
     assert.match(textOf(r.replies), /象棋/)
@@ -186,7 +186,7 @@ test("多 Bot 同群：只有开局的 Bot 处理", async () => {
 })
 
 test("更新指令仅主人可用", async () => {
-  for (const msg of ["#棋更新", "棋更新", "#棋强制更新"]) {
+  for (const msg of ["#游戏更新", "游戏更新", "#游戏强制更新", "#棋更新", "#棋强制更新"]) {
     const r = await dispatch({ ...A, msg })
     assert.match(textOf(r.replies), /只有主人/, msg)
   }
@@ -201,11 +201,13 @@ test("棋盘使用内置字体", async () => {
   assert.match(renderHtml(new XiangqiGame(), { fontUrl }), /@font-face \{ font-family: "ChessKai"; src: url\("file:/)
 })
 
-test("棋帮助列出棋类，棋版本", async () => {
-  let r = await dispatch({ ...A, msg: "#棋帮助" })
-  assert.match(textOf(r.replies), /中国象棋[\s\S]*#象棋帮助/)
-  r = await dispatch({ ...A, msg: "#棋版本", adapter: "QQBot" })
-  assert.match(textOf(r.replies), /v1\.2\.0/)
+test("游戏帮助按分类列出游戏，游戏版本", async () => {
+  let r = await dispatch({ ...A, msg: "#游戏帮助" })
+  assert.match(textOf(r.replies), /游戏帮助[\s\S]*中国象棋 棋类 · Chinese_Chess[\s\S]*#象棋帮助[\s\S]*#游戏更新/)
+  for (const msg of ["#游戏版本", "#棋版本"]) {
+    r = await dispatch({ ...A, msg })
+    assert.match(textOf(r.replies), /Game-Plugin v1\.3\.0/, msg)
+  }
   for (const msg of ["#棋类帮助", "#棋类版本"]) assert.equal((await dispatch({ ...A, msg })).handled, null, msg)
 })
 

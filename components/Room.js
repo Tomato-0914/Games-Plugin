@@ -2,6 +2,7 @@
  * 通用房间管理：内存中保存对局，同时写入 Redis，重启后恢复
  * 各棋种共用，room 的内容由棋种自己决定，只要求有 scope 字段并提供 serialize()
  */
+// 沿用改名前的前缀，保证已保存的对局能恢复
 const PREFIX = "Chess-Plugin"
 const EXPIRE = 24 * 3600
 
@@ -41,7 +42,7 @@ export class RoomStore {
     try {
       await redis.set(this.key(room.scope), JSON.stringify(room.serialize()), { EX: EXPIRE })
     } catch (err) {
-      logger?.error?.(`[Chess-Plugin] 保存对局失败：${err.message}`)
+      logger?.error?.(`[Game-Plugin] 保存对局失败：${err.message}`)
     }
   }
 
@@ -69,7 +70,7 @@ export class RoomStore {
         }
       }
     } catch (err) {
-      logger?.error?.(`[Chess-Plugin] 读取对局失败：${err.message}`)
+      logger?.error?.(`[Game-Plugin] 读取对局失败：${err.message}`)
     }
     return list
   }

@@ -16,7 +16,7 @@ async function getRenderer() {
   try {
     renderer = (await importYunzai("lib/puppeteer/puppeteer.js")).default || null
   } catch (err) {
-    logger?.warn?.(`[Chess-Plugin] 无法加载 puppeteer，将改发文字：${err.message}`)
+    logger?.warn?.(`[Game-Plugin] 无法加载 puppeteer，将改发文字：${err.message}`)
     renderer = null
   }
   return renderer
@@ -31,7 +31,7 @@ export async function screenshot(html, saveId) {
   const r = await getRenderer()
   if (!r?.screenshot) return null
   try {
-    const img = await r.screenshot("chess-plugin", {
+    const img = await r.screenshot("game-plugin", {
       tplFile: path.join(Plugin_Path, "resources/common/page.html"),
       saveId: String(saveId).replace(/[^\w-]/g, "_"),
       html,
@@ -40,7 +40,7 @@ export async function screenshot(html, saveId) {
     })
     return img || null
   } catch (err) {
-    logger?.error?.(`[Chess-Plugin] 截图失败：${err.message}`)
+    logger?.error?.(`[Game-Plugin] 截图失败：${err.message}`)
     return null
   }
 }

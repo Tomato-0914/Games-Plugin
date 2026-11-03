@@ -3,7 +3,10 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 /** 插件根目录（按实际目录名，不写死） */
 export const Plugin_Path = path.resolve(fileURLToPath(new URL("..", import.meta.url)))
+/** 插件所在的文件夹名（改名前安装的可能仍是 Chess-Plugin），用于路径 */
 export const Plugin_Name = path.basename(Plugin_Path)
+/** 显示用的插件名 */
+export const Plugin_Title = "Game-Plugin"
 /** Yunzai 根目录 */
 export const Yunzai_Path = process.cwd()
 

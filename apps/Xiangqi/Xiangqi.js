@@ -167,14 +167,14 @@ async function send(room, e, msg) {
   try {
     if (e?.reply) return await e.reply(msg)
   } catch (err) {
-    logger.error(`[Chess-Plugin] 回复失败：${err.message}`)
+    logger.error(`[Game-Plugin] 回复失败：${err.message}`)
   }
   try {
     const bot = global.Bot?.[room.selfId] || global.Bot
     const target = room.isGroup ? bot?.pickGroup?.(room.groupId) : bot?.pickFriend?.(room.userId)
     return await target?.sendMsg?.(msg)
   } catch (err) {
-    logger.error(`[Chess-Plugin] 主动发送失败：${err.message}`)
+    logger.error(`[Game-Plugin] 主动发送失败：${err.message}`)
   }
 }
 
@@ -261,7 +261,7 @@ async function aiPlay(room) {
   try {
     res = await runEngine("think", { fen: game.startFen, moves: game.records.map(r => r.iccs), level: room.aiLevel })
   } catch (err) {
-    logger.error(`[Chess-Plugin] AI 思考出错：${err.message}`)
+    logger.error(`[Game-Plugin] AI 思考出错：${err.message}`)
   }
   if (!isCurrent(room) || room.status !== "playing" || game.moveCount !== count || game.result) return null
   const legal = game.legalMoves()
@@ -293,11 +293,11 @@ async function restore() {
       count++
       if (room.status === "playing" && room.player(room.game.side).ai) resumeAi(room)
     } catch (err) {
-      logger.error(`[Chess-Plugin] 恢复对局失败：${err.message}`)
+      logger.error(`[Game-Plugin] 恢复对局失败：${err.message}`)
       await store.remove(data.scope)
     }
   }
-  if (count) logger.mark(`[Chess-Plugin] 已恢复 ${count} 局象棋对局`)
+  if (count) logger.mark(`[Game-Plugin] 已恢复 ${count} 局象棋对局`)
 }
 
 /** 重启前 AI 正在思考的对局：补走一步并主动发送 */

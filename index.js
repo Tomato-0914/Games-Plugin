@@ -1,7 +1,7 @@
 import fs from "node:fs/promises"
 import path from "node:path"
 import { pathToFileURL } from "node:url"
-import { Plugin_Name, Plugin_Path, Version } from "./components/index.js"
+import { Plugin_Title, Plugin_Path, Version } from "./components/index.js"
 
 /** 遍历 apps/ 加载所有插件类（同柴郡插件） */
 async function traverse(dir) {
@@ -28,11 +28,11 @@ for (const file of await traverse(path.join(Plugin_Path, "apps"))) {
     }
   } catch (err) {
     errors.push(path.basename(file))
-    logger.error(`[${Plugin_Name}] 加载失败：${file}\n${err.stack}`)
+    logger.error(`[${Plugin_Title}] 加载失败：${file}\n${err.stack}`)
   }
 }
 
-logger.mark(logger.green(`[${Plugin_Name}] 棋类游戏插件 v${Version.ver} 加载完成，共 ${Object.keys(apps).length} 个功能，耗时 ${Date.now() - start}ms`))
-if (errors.length) logger.error(`[${Plugin_Name}] ${errors.length} 个文件加载失败：${errors.join("、")}`)
+logger.mark(logger.green(`[${Plugin_Title}] 群聊小游戏插件 v${Version.ver} 加载完成，共 ${Object.keys(apps).length} 个功能，耗时 ${Date.now() - start}ms`))
+if (errors.length) logger.error(`[${Plugin_Title}] ${errors.length} 个文件加载失败：${errors.join("、")}`)
 
 export { apps }
