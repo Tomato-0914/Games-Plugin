@@ -1,0 +1,40 @@
+/**
+ * 棋盘截图：使用 Yunzai 自带的 puppeteer，失败时返回 null（调用方改发文字棋盘）
+ */
+import path from "node:path"
+import { Plugin_Path, importYunzai } from "./index.js"
+
+let renderer
+async function getRenderer() {
+  if (renderer !== undefined) return renderer
+  try {
+    renderer = (await importYunzai("lib/puppeteer/puppeteer.js")).default || null
+  } catch (err) {
+    logger?.warn?.(`[Chess-Plugin] 无法加载 puppeteer，将使用文字棋盘：${err.message}`)
+    renderer = null
+  }
+  return renderer
+}
+
+/**
+ * @param {string} html 完整页面
+ * @param {string} saveId 临时文件名（同一时刻不同对局不能相同）
+ * @returns 图片消息段或 null
+ */
+export async function screenshot(html, saveId) {
+  const r = await getRenderer()
+  if (!r?.screenshot) return null
+  try {
+    const img = await r.screenshot("chess-plugin", {
+      tplFile: path.join(Plugin_Path, "resources/xiangqi/board.html"),
+      saveId: String(saveId).replace(/[^\w-]/g, "_"),
+      html,
+      imgType: "jpeg",
+      quality: 92,
+    })
+    return img || null
+  } catch (err) {
+    logger?.error?.(`[Chess-Plugin] 棋盘截图失败：${err.message}`)
+    return null
+  }
+}

@@ -1,0 +1,39 @@
+# Chess-Plugin 配置文件
+# 修改 config/config.yaml 即可（首次启动从本文件复制），保存后自动生效，无需重启
+
+# 中国象棋
+xiangqi:
+  # 发起对局后等待对手加入的时间（秒）
+  joinTimeout: 300
+  # 每步思考时间（秒），超时判负
+  moveTimeout: 120
+  # 超时前多少秒提醒一次，0 为不提醒
+  moveWarnBefore: 30
+  # 自然限着：双方连续多少回合没有吃子判和，0 为不限制
+  naturalLimit: 60
+  # 双人对战轮到黑方时是否翻转棋盘（默认红方始终在下）
+  # 人机对战中玩家执黑时，棋盘始终以玩家视角显示
+  flipForBlack: false
+  # 默认人机难度：入门 / 简单 / 普通 / 困难
+  defaultAiLevel: 普通
+  # 人机对战每局可悔棋次数
+  aiUndoLimit: 3
+  # 悔棋、求和请求的有效时间（秒）
+  requestTimeout: 60
+  # 是否允许私聊人机对战
+  allowPrivate: true
+
+# AI 引擎
+engine:
+  # 同时进行的 AI 思考数量（每个占用一个 CPU 线程）
+  maxConcurrent: 2
+
+# QQ 官方机器人（QQBot-Plugin）
+qqbot:
+  # 是否附带按钮
+  buttons: true
+
+# 棋盘图片
+render:
+  # 截图失败（未安装浏览器等）时改发文字棋盘
+  textFallback: true
