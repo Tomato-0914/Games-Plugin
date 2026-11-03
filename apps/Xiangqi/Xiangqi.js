@@ -1,4 +1,4 @@
-import { plugin, segment, Config, makeButtons, playerName, isAdmin } from "../../components/index.js"
+import { plugin, segment, Config, isQQBot, makeButtons, playerName, isAdmin } from "../../components/index.js"
 import { RoomStore } from "../../components/Room.js"
 import { runEngine } from "../../components/AI.js"
 import { screenshot, fontUrl } from "../../components/Render.js"
@@ -107,7 +107,6 @@ function menuButtons(e) {
       { text: "加入对局", cmd: "#加入象棋" },
       { text: "人机对战", cmd: "#人机象棋" },
     ],
-    LEVEL_NAMES.map(level => ({ text: `人机·${level}`, cmd: `#人机象棋 ${level}` })),
   ])
 }
 
@@ -339,6 +338,7 @@ export class Xiangqi extends plugin {
         { reg: reg(`^#?(?:求和|提和|${G}\\s*draw)$`), fnc: "draw" },
         { reg: /^#?(同意|拒绝)(求和|和棋)$/, fnc: "answerDraw" },
         { reg: reg(`^#?(?:认输|投降|${G}\\s*resign)$`), fnc: "resign" },
+        { reg: /^#?(同意|拒绝)认输$/, fnc: "answerResign" },
         { reg: /^\s*#?\s*(?:走\s*)?\S{4,7}\s*$/, fnc: "move", log: false },
       ],
     })
@@ -375,7 +375,7 @@ export class Xiangqi extends plugin {
           piece: "炮",
           color: "black",
           items: [
-            { cmd: "#人机象棋", desc: `默认${c.defaultAiLevel || "普通"}难度，执红先走` },
+            { cmd: "#人机象棋", desc: isQQBot(e) ? "选择难度后开始，默认执红先走" : `默认${c.defaultAiLevel || "普通"}难度，执红先走` },
             { cmd: "#人机象棋 困难 黑", desc: `难度：${LEVEL_NAMES.join(" / ")}，可执黑后走` },
           ],
         },
@@ -398,9 +398,10 @@ export class Xiangqi extends plugin {
             { cmd: "#棋盘", desc: "重新发送棋盘" },
             { cmd: "#悔棋", desc: `双人需对方同意，人机每局 ${Number(c.aiUndoLimit) || 0} 次` },
             { cmd: "#求和", desc: "双人需对方同意，人机根据局面决定" },
-            { cmd: "#认输", desc: "认输" },
+            { cmd: "#认输", desc: "双人需对方同意，人机直接认输" },
             { cmd: "#同意悔棋 / #拒绝悔棋", desc: "回应对方的悔棋请求" },
             { cmd: "#同意求和 / #拒绝求和", desc: "回应对方的和棋请求" },
+            { cmd: "#同意认输 / #拒绝认输", desc: "回应对方的认输请求" },
             { cmd: "#结束象棋", desc: "发起人 / 群管理 / 主人强制结束" },
           ],
           notes: [
@@ -532,10 +533,19 @@ export class Xiangqi extends plugin {
     }
     const arg = (e.msg.match(reg(`^#?(?:人机${G}|${G}\\s*ai)(.*)$`))?.[1] || "").trim()
     const english = { beginner: "入门", easy: "简单", normal: "普通", hard: "困难" }
-    const level = LEVEL_NAMES.find(l => arg.includes(l))
+    const chosen = LEVEL_NAMES.find(l => arg.includes(l))
       || english[Object.keys(english).find(k => new RegExp(k, "i").test(arg))]
-      || (LEVEL_NAMES.includes(c.defaultAiLevel) ? c.defaultAiLevel : "普通")
     const humanSide = /黑|black/i.test(arg) ? BLACK : RED
+    // 官方机器人下没指定难度时，先发难度按钮让玩家选择
+    if (!chosen) {
+      const color = humanSide === BLACK ? " 黑" : ""
+      const buttons = makeButtons(e, [LEVEL_NAMES.map(l => ({ text: l, cmd: `#人机象棋 ${l}${color}`, permission: String(e.user_id) }))])
+      if (buttons) {
+        await e.reply([...at({ isGroup: e.isGroup }, e.user_id), `请选择人机难度（执${sideName(humanSide)}）`, buttons])
+        return true
+      }
+    }
+    const level = chosen || (LEVEL_NAMES.includes(c.defaultAiLevel) ? c.defaultAiLevel : "普通")
     const human = { id: String(e.user_id), name: playerName(e) }
     const bot = { ai: true, level, name: `${e.bot?.nickname || "Bot"}（${level}）` }
     const newRoom = store.set(new Room({
@@ -598,6 +608,7 @@ export class Xiangqi extends plugin {
     room.lastEvent = e
     room.undoRequest = null
     room.drawOffer = null
+    room.resignRequest = null
     const lines = [moveLine(room, game.play(res.move), side)]
     if (game.result) return finish(room, e, lines)
 
@@ -810,6 +821,51 @@ export class Xiangqi extends plugin {
     const side = room.playerSide(e.user_id)
     if (!side) return false
     room.lastEvent = e
+    // 人机对战直接认输
+    if (room.mode === "ai") {
+      room.game.end(-side, "resign")
+      return finish(room, e, [`🏳️ ${sideName(side)} ${room.player(side).name} 认输\n`])
+    }
+    // 双人对战需对方同意
+    const timeout = (Number(cfg().requestTimeout) || 60) * 1000
+    if (room.resignRequest && Date.now() - room.resignRequest.at < timeout) {
+      await e.reply(room.resignRequest.from === String(e.user_id) ? "已经提出认输，等待对方回应" : "对方已经提出认输，发送 #同意认输 或 #拒绝认输")
+      return true
+    }
+    const opponent = room.player(-side)
+    room.resignRequest = { from: String(e.user_id), at: Date.now() }
+    const msg = [...at(room, opponent.id), `${room.player(side).name} 请求认输，是否同意？\n发送 #同意认输 或 #拒绝认输（${timeout / 1000} 秒内有效）`]
+    const buttons = makeButtons(e, [[
+      { text: "同意认输", cmd: "#同意认输", permission: opponent.id },
+      { text: "拒绝认输", cmd: "#拒绝认输", permission: opponent.id },
+    ]])
+    if (buttons) msg.push(buttons)
+    await e.reply(msg)
+    return true
+  }
+
+  async answerResign(e) {
+    const { room, foreign } = context(e)
+    if (!room || foreign || room.status !== "playing" || room.mode !== "pvp") return false
+    if (!room.playerSide(e.user_id)) return false
+    const req = room.resignRequest
+    const timeout = (Number(cfg().requestTimeout) || 60) * 1000
+    if (!req || Date.now() - req.at > timeout) {
+      room.resignRequest = null
+      await e.reply("没有待回应的认输请求")
+      return true
+    }
+    if (req.from === String(e.user_id)) {
+      await e.reply("要等对方同意哦")
+      return true
+    }
+    room.resignRequest = null
+    if (/拒绝/.test(e.msg)) {
+      await e.reply("对方拒绝了认输，继续下吧")
+      return true
+    }
+    room.lastEvent = e
+    const side = room.playerSide(req.from)
     room.game.end(-side, "resign")
     return finish(room, e, [`🏳️ ${sideName(side)} ${room.player(side).name} 认输\n`])
   }

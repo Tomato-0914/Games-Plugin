@@ -1,7 +1,7 @@
 import { test, before, after } from "node:test"
 import assert from "node:assert/strict"
 import fs from "node:fs"
-import { kv, sent, loadApps, makeDispatcher, textOf } from "./support/yunzai.js"
+import { kv, loadApps, makeDispatcher, textOf } from "./support/yunzai.js"
 
 const CONFIG = new URL("../config/config.yaml", import.meta.url)
 let backup = null
@@ -48,6 +48,5 @@ test("重启后从 Redis 恢复对局", async () => {
   assert.match(textOf(r.replies), /炮二平五|将/)
   r = await fresh({ user: "2", group: g, msg: "马8进7" })
   assert.match(textOf(r.replies), /黑方 用户2：马8进7/)
-  await fresh({ user: "2", group: g, msg: "#认输" })
-  assert.equal(sent.length >= 0, true)
+  await fresh({ user: "2", group: g, msg: "#结束象棋", isMaster: true })
 })

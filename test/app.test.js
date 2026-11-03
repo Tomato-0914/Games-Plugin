@@ -60,7 +60,15 @@ test("双人对战：发起、加入、走子、认输", async () => {
   // 同一人不能再开局
   r = await dispatch({ ...A, group: "901", msg: "#发起象棋" })
   assert.match(textOf(r.replies), /没下完/)
+  // 双人认输需要对方同意
   r = await dispatch({ ...B, group: g, msg: "#认输" })
+  assert.match(textOf(r.replies), /@111.*小红 请求认输/)
+  r = await dispatch({ ...B, group: g, msg: "#同意认输" })
+  assert.match(textOf(r.replies), /等对方同意/)
+  r = await dispatch({ ...A, group: g, msg: "#拒绝认输" })
+  assert.match(textOf(r.replies), /拒绝了认输/)
+  r = await dispatch({ ...B, group: g, msg: "#认输" })
+  r = await dispatch({ ...A, group: g, msg: "#同意认输" })
   assert.match(textOf(r.replies), /红方 小明 获胜（认输）/)
   assert.ok(!kv.has("Chess-Plugin:Chinese_Chess:room:group:900"))
 })
@@ -145,6 +153,19 @@ test("官方机器人带按钮，其他适配器不带", async () => {
   assert.equal(resign.QQBot.action.data, "#认输")
   r = await dispatch({ ...A, group: g, msg: "#结束象棋", isMaster: true })
   assert.doesNotMatch(textOf(r.replies), /按钮/)
+  // 帮助只带三个按钮
+  r = await dispatch({ ...A, group: g, msg: "#象棋帮助", adapter: "QQBot" })
+  assert.match(textOf(r.replies), /\[按钮:发起对局,加入对局,人机对战\]$/)
+  // 人机未指定难度：先发难度按钮，不开局
+  r = await dispatch({ ...A, group: g, msg: "#人机象棋 黑", adapter: "QQBot" })
+  assert.match(textOf(r.replies), /请选择人机难度（执黑方）\[按钮:入门,简单,普通,困难\]/)
+  const pick = r.replies.flat().find(m => m?.type === "button").data[0]
+  assert.equal(pick[3].callback, "#人机象棋 困难 黑")
+  assert.equal(pick[3].permission, "111")
+  r = await dispatch({ ...A, group: g, msg: pick[1].callback, adapter: "QQBot" })
+  assert.match(textOf(r.replies), /你执黑方，难度：简单/)
+  r = await dispatch({ ...A, group: g, msg: "#认输", adapter: "QQBot" })
+  assert.match(textOf(r.replies), /获胜（认输）/)
   r = await dispatch({ ...A, group: "907", msg: "#发起象棋" })
   assert.doesNotMatch(textOf(r.replies), /按钮/)
   await dispatch({ ...A, group: "907", msg: "#取消象棋" })
@@ -184,7 +205,7 @@ test("棋帮助列出棋类，棋版本", async () => {
   let r = await dispatch({ ...A, msg: "#棋帮助" })
   assert.match(textOf(r.replies), /中国象棋[\s\S]*#象棋帮助/)
   r = await dispatch({ ...A, msg: "#棋版本", adapter: "QQBot" })
-  assert.match(textOf(r.replies), /v1\.1\.0/)
+  assert.match(textOf(r.replies), /v1\.2\.0/)
   for (const msg of ["#棋类帮助", "#棋类版本"]) assert.equal((await dispatch({ ...A, msg })).handled, null, msg)
 })
 
