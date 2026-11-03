@@ -113,7 +113,7 @@ test("官方机器人：不写难度先发按钮；对局按钮", async () => {
   assert.equal(btn[2].permission, "111")
   assert.ok(!kv.has(KEY(`group:${g}`)))
   r = await dispatch({ ...A, group: g, msg: btn[0].callback, adapter: "QQBot" })
-  assert.match(textOf(r.replies), /\[按钮:翻开,插旗,盘面,提示,自动：关,结束\]/)
+  assert.match(textOf(r.replies), /\[按钮:翻开,插旗,提示,自动：关,结束\]/)
   const rows = r.replies.flat().find(m => m?.type === "button").data
   assert.deepEqual(rows[0].map(b => [b.text, b.input, b.send, b.permission]), [["翻开", "开", false, "111"], ["插旗", "旗", false, "111"]])
   assert.equal(rows[0][0].callback, undefined)

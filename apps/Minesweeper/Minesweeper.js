@@ -78,7 +78,6 @@ function gameButtons(e, room) {
       { text: "插旗", input: "旗", permission: id, style: 1 },
     ],
     [
-      { text: "盘面", cmd: "#扫雷盘面" },
       { text: "提示", cmd: "#扫雷提示", permission: id },
       { text: room.auto ? "自动：开" : "自动：关", cmd: "#扫雷自动", permission: id },
       { text: "结束", cmd: "#结束扫雷", permission: id },
