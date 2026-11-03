@@ -2,6 +2,7 @@ import { plugin, segment, Config, makeButtons, playerName, isAdmin } from "../..
 import { RoomStore } from "../../components/Room.js"
 import { runEngine } from "../../components/AI.js"
 import { screenshot, fontUrl } from "../../components/Render.js"
+import { helpMessage } from "../../components/Help.js"
 import { XiangqiGame, RESULT_REASON } from "../../games/xiangqi/Game.js"
 import { RED, BLACK, iccsToMove } from "../../games/xiangqi/Board.js"
 import { looksLikeMove, sampleMoves } from "../../games/xiangqi/Notation.js"
@@ -110,9 +111,14 @@ function menuButtons(e) {
   ])
 }
 
+/** 黑方在下时翻转棋盘 */
 function shouldFlip(room) {
-  if (room.mode === "ai") return room.aiSide === RED
-  return !!cfg().flipForBlack && room.game.side === BLACK && !room.game.result
+  const game = room.game
+  if (cfg().boardFollowTurn === false) return room.mode === "ai" && room.aiSide === RED
+  // 终局：人机按玩家视角，双人按最后走子的一方
+  if (game.result) return room.mode === "ai" ? room.aiSide === RED : game.moveCount > 0 && game.moveCount % 2 === 0
+  // 轮到哪一方，哪一方在下
+  return game.side === BLACK
 }
 
 /** 轮到谁走 */
@@ -346,30 +352,69 @@ export class Xiangqi extends plugin {
 
   async help(e) {
     const c = cfg()
-    const text = [
-      `【${GAME_NAME} Chinese_Chess】`,
-      "",
-      "双人对战（群聊）",
-      "  #发起象棋 [红/黑]　发起对局；不指定颜色时，开局随机分配红黑",
-      "  #加入象棋　加入对局，加入后立即开始，红方先走",
-      "",
-      "人机对战（群聊、私聊）",
-      `  #人机象棋 [难度] [红/黑]　难度：${LEVEL_NAMES.join(" / ")}，默认${c.defaultAiLevel || "普通"}；默认执红先走`,
-      "",
-      "走棋（轮到你时直接发送）",
-      "  炮二平五、马8进7、前车进一，或坐标 h2e2",
-      "  中文数字、阿拉伯数字都能识别；棋盘四周印有纵线编号和坐标",
-      "",
-      "对局中",
-      "  #棋盘　#悔棋　#求和　#认输",
-      "  #同意悔棋 / #拒绝悔棋　#同意求和 / #拒绝求和",
-      "  #结束象棋　发起人、群管理或主人强制结束",
-      "",
-      `每步限时 ${c.moveTimeout || 120} 秒，超时判负；长将判负，其他重复局面判和`,
-      "English: #Chinese_Chess create | join | ai | board | undo | draw | resign | end",
-    ].join("\n")
+    const limit = Number(c.moveTimeout) || 0
+    const data = {
+      title: GAME_NAME,
+      subtitle: "群友双人对战 · 人机对战",
+      piece: "帥",
+      badge: GAME_ID,
+      sections: [
+        {
+          title: "双人对战",
+          tag: "群聊",
+          piece: "兵",
+          items: [
+            { cmd: "#发起象棋", desc: "发起对局，开局时随机分配红黑" },
+            { cmd: "#发起象棋 红", desc: "指定自己执红（或“黑”）" },
+            { cmd: "#加入象棋", desc: "加入对局，加入后立即开始，红方先走" },
+          ],
+        },
+        {
+          title: "人机对战",
+          tag: "群聊 · 私聊",
+          piece: "炮",
+          color: "black",
+          items: [
+            { cmd: "#人机象棋", desc: `默认${c.defaultAiLevel || "普通"}难度，执红先走` },
+            { cmd: "#人机象棋 困难 黑", desc: `难度：${LEVEL_NAMES.join(" / ")}，可执黑后走` },
+          ],
+        },
+        {
+          title: "走棋",
+          tag: "轮到你时直接发送",
+          piece: "馬",
+          items: [
+            { cmd: "炮二平五", desc: "棋子 + 纵线 + 进/退/平 + 目标" },
+            { cmd: "马8进7", desc: "中文数字、阿拉伯数字都能识别" },
+            { cmd: "前车进一", desc: "同一纵线两个同类棋子用前/后区分" },
+            { cmd: "h2e2", desc: "坐标走法，棋盘四周印有坐标" },
+          ],
+        },
+        {
+          title: "对局中",
+          piece: "車",
+          color: "black",
+          items: [
+            { cmd: "#棋盘", desc: "重新发送棋盘" },
+            { cmd: "#悔棋", desc: `双人需对方同意，人机每局 ${Number(c.aiUndoLimit) || 0} 次` },
+            { cmd: "#求和", desc: "双人需对方同意，人机根据局面决定" },
+            { cmd: "#认输", desc: "认输" },
+            { cmd: "#同意悔棋 / #拒绝悔棋", desc: "回应对方的悔棋请求" },
+            { cmd: "#同意求和 / #拒绝求和", desc: "回应对方的和棋请求" },
+            { cmd: "#结束象棋", desc: "发起人 / 群管理 / 主人强制结束" },
+          ],
+          notes: [
+            `${limit ? `每步限时 ${limit} 秒，超时判负；` : ""}长将判负，其他重复局面判和`,
+            "棋盘跟随行棋方：轮到哪一方，哪一方在下",
+          ],
+        },
+      ],
+      footer: "English: #Chinese_Chess create | join | ai | board | undo | draw | resign | end",
+    }
+    const msg = [await helpMessage(data, "help-xiangqi")]
     const buttons = menuButtons(e)
-    await e.reply(buttons ? [text, buttons] : text)
+    if (buttons) msg.push(buttons)
+    await e.reply(msg)
     return true
   }
 

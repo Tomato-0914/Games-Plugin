@@ -6,7 +6,7 @@ import { plugin, Plugin_Name, Plugin_Path, Version } from "../../components/inde
 /* ================= 插件更新 =================
  * #棋更新         git pull，有新提交时展示更新日志；依赖变化时自动 pnpm install；PM2 守护下自动重启
  * #棋强制更新   丢弃本地改动，与远程分支保持一致（git fetch + git reset --hard），其余同上
- * #棋类版本       当前版本与最近更新内容
+ * #棋版本         当前版本与最近更新内容
  * 仅主人可用。重启后回到发起更新的群/私聊报告结果，进行中的对局会自动恢复。
  */
 
@@ -57,7 +57,7 @@ export class ChessUpdate extends plugin {
       priority: -10,
       rule: [
         { reg: /^#?棋(强制)?更新$/, fnc: "update" },
-        { reg: /^#?(棋类|Chess)版本$/i, fnc: "version" },
+        { reg: /^#?(棋|Chess\s*)版本$/i, fnc: "version" },
       ],
     })
   }

@@ -11,9 +11,9 @@ xiangqi:
   moveWarnBefore: 30
   # 自然限着：双方连续多少回合没有吃子判和，0 为不限制
   naturalLimit: 60
-  # 双人对战轮到黑方时是否翻转棋盘（默认红方始终在下）
-  # 人机对战中玩家执黑时，棋盘始终以玩家视角显示
-  flipForBlack: false
+  # 棋盘跟随行棋方：轮到黑方时黑方在下，轮到红方时红方在下
+  # 设为 false 时红方始终在下（人机对战中玩家执黑时仍以玩家视角显示）
+  boardFollowTurn: true
   # 默认人机难度：入门 / 简单 / 普通 / 困难
   defaultAiLevel: 普通
   # 人机对战每局可悔棋次数

@@ -16,7 +16,7 @@ const A = { user: "111", nickname: "小明" }
 const B = { user: "222", nickname: "小红" }
 
 test("帮助与英文指令", async () => {
-  for (const msg of ["#象棋", "#象棋帮助", "#Chinese_Chess", "#chinese_chess help", "#棋类帮助"]) {
+  for (const msg of ["#象棋", "#象棋帮助", "#Chinese_Chess", "#chinese_chess help", "#棋帮助"]) {
     const r = await dispatch({ msg })
     assert.ok(r.handled, msg)
     assert.match(textOf(r.replies), /象棋/)
@@ -45,10 +45,15 @@ test("双人对战：发起、加入、走子、认输", async () => {
   r = await dispatch({ user: "333", group: g, msg: "炮二平五" })
   assert.equal(r.handled, null)
   // 非法走法
+  // 轮到红方：红方在下（文字棋盘第一行是黑方的纵线编号）
+  r = await dispatch({ ...A, group: g, msg: "#棋盘" })
+  assert.match(textOf(r.replies), /^１２３４５６７８９/)
   r = await dispatch({ ...A, group: g, msg: "马二进四" })
   assert.match(textOf(r.replies), /马腿/)
   r = await dispatch({ ...A, group: g, msg: "炮二平五" })
   assert.match(textOf(r.replies), /红方 小明：炮二平五/)
+  // 轮到黑方：黑方在下
+  assert.match(textOf(r.replies), /^一二三四五六七八九/)
   assert.match(textOf(r.replies), /@222/)
   r = await dispatch({ ...B, group: g, msg: "h9g7" })
   assert.match(textOf(r.replies), /黑方 小红：马8进7/)
@@ -173,4 +178,19 @@ test("棋盘使用内置字体", async () => {
   const { XiangqiGame } = await import("../games/xiangqi/Game.js")
   assert.match(fontUrl, /^file:\/\/.*LXGWWenKai-Medium\.woff2$/)
   assert.match(renderHtml(new XiangqiGame(), { fontUrl }), /@font-face \{ font-family: "ChessKai"; src: url\("file:/)
+})
+
+test("棋帮助列出棋类，棋版本", async () => {
+  let r = await dispatch({ ...A, msg: "#棋帮助" })
+  assert.match(textOf(r.replies), /中国象棋[\s\S]*#象棋帮助/)
+  r = await dispatch({ ...A, msg: "#棋版本", adapter: "QQBot" })
+  assert.match(textOf(r.replies), /v1\.1\.0/)
+  for (const msg of ["#棋类帮助", "#棋类版本"]) assert.equal((await dispatch({ ...A, msg })).handled, null, msg)
+})
+
+test("帮助图片 HTML", async () => {
+  const { renderHelpHtml } = await import("../components/Help.js")
+  const html = renderHelpHtml({ title: "中国象棋", sections: [{ title: "走棋", items: [{ cmd: "<b>", desc: "x" }] }] }, "file:///font.woff2")
+  assert.match(html, /@font-face/)
+  assert.match(html, /&lt;b&gt;/)
 })
