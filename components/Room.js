@@ -42,7 +42,7 @@ export class RoomStore {
     try {
       await redis.set(this.key(room.scope), JSON.stringify(room.serialize()), { EX: EXPIRE })
     } catch (err) {
-      logger?.error?.(`[Game-Plugin] 保存对局失败：${err.message}`)
+      logger?.error?.(`[Games-Plugin] 保存对局失败：${err.message}`)
     }
   }
 
@@ -70,7 +70,7 @@ export class RoomStore {
         }
       }
     } catch (err) {
-      logger?.error?.(`[Game-Plugin] 读取对局失败：${err.message}`)
+      logger?.error?.(`[Games-Plugin] 读取对局失败：${err.message}`)
     }
     return list
   }

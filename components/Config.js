@@ -25,7 +25,7 @@ class Config {
     try {
       if (!fs.existsSync(USER_FILE)) fs.copyFileSync(DEFAULT_FILE, USER_FILE)
     } catch (err) {
-      logger?.error?.(`[Game-Plugin] 创建配置文件失败：${err.message}`)
+      logger?.error?.(`[Games-Plugin] 创建配置文件失败：${err.message}`)
     }
   }
 
@@ -40,7 +40,7 @@ class Config {
     try {
       if (mtime) user = YAML.parse(fs.readFileSync(USER_FILE, "utf8")) || {}
     } catch (err) {
-      logger?.error?.(`[Game-Plugin] config.yaml 格式错误，使用默认配置：${err.message}`)
+      logger?.error?.(`[Games-Plugin] config.yaml 格式错误，使用默认配置：${err.message}`)
     }
     this.cache = merge(def, user)
     this.mtime = mtime

@@ -1,5 +1,8 @@
+# 1.3.1
+* 插件名更正为 Games-Plugin，仓库地址 https://github.com/Tomato-0914/Games-Plugin
+
 # 1.3.0
-* 插件改名为 Game-Plugin（原 Chess-Plugin），后续加入扫雷等非棋类游戏
+* 插件改名为 Games-Plugin（原 Chess-Plugin），后续加入扫雷等非棋类游戏
 * 维护指令改为 `#游戏更新`、`#游戏强制更新`、`#游戏版本`，总帮助改为 `#游戏帮助`（旧指令暂时保留）
 * `#游戏帮助` 按分类展示游戏
 

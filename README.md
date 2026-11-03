@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Game-Plugin</h1>
+  <h1>Games-Plugin</h1>
   <p><a href="https://github.com/TimeRainStarSky/Yunzai" target="_blank">TRSS-Yunzai</a> 群聊小游戏插件</p>
   <p>已上线：中国象棋（Chinese_Chess）—— 群友双人对战 / 人机对战　·　开发中：扫雷</p>
 </div>
@@ -21,7 +21,7 @@
 在 Yunzai 根目录执行：
 
 ```sh
-git clone --depth 1 https://github.com/Tomato-0914/Game-Plugin ./plugins/Game-Plugin
+git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-Plugin
 ```
 
 插件没有额外依赖，不需要 `pnpm install`。重启 Bot 即可使用。
@@ -30,10 +30,10 @@ git clone --depth 1 https://github.com/Tomato-0914/Game-Plugin ./plugins/Game-Pl
 
 ## 从 Chess-Plugin 升级
 
-仓库已从 `Chess-Plugin` 改名为 `Game-Plugin`，旧地址会自动跳转，已安装的插件发 `#游戏更新`（或旧指令 `#棋更新`）照常更新。
+仓库已从 `Chess-Plugin` 改名为 `Games-Plugin`，旧地址会自动跳转，已安装的插件发 `#游戏更新`（或旧指令 `#棋更新`）照常更新。
 
 - 插件文件夹可以继续叫 `plugins/Chess-Plugin`，不影响使用
-- 建议把远程地址改成新的：在插件目录执行 `git remote set-url origin https://github.com/Tomato-0914/Game-Plugin`
+- 建议把远程地址改成新的：在插件目录执行 `git remote set-url origin https://github.com/Tomato-0914/Games-Plugin`
 - 进行中的对局、配置文件都不受影响
 
 ## 指令
