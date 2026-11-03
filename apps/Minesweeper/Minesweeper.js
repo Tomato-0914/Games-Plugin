@@ -79,7 +79,10 @@ function gameButtons(e, room) {
     ],
     [
       { text: "提示", cmd: "#扫雷提示", permission: id },
-      { text: room.auto ? "自动：开" : "自动：关", cmd: "#扫雷自动", permission: id },
+      // 按钮显示点击后的操作；指令写明开/关，点到旧消息里的按钮也不会反向切换
+      room.auto
+        ? { text: "自动：关", cmd: "#扫雷自动 关", permission: id }
+        : { text: "自动：开", cmd: "#扫雷自动 开", permission: id },
       { text: "结束", cmd: "#结束扫雷", permission: id },
     ],
   ])
