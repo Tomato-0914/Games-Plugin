@@ -126,7 +126,9 @@ test("官方机器人：不写难度先发按钮；对局按钮", async () => {
   const t = textOf(r.replies)
   assert.match(t, /插旗：A1|A1 已经翻开|扫雷成功|踩到雷/)
   if (!/扫雷成功|踩到雷/.test(t)) r = await dispatch({ ...A, group: g, msg: "#结束扫雷", adapter: "QQBot" })
-  assert.match(textOf(r.replies), /\[按钮:再来一盘,换个难度\]/)
+  assert.match(textOf(r.replies), /\[按钮:扫雷帮助,再来一盘\]/)
+  const end = r.replies.flat().find(m => m?.type === "button").data[0]
+  assert.equal(end[1].callback, "#扫雷 初级")
   // 其他适配器不写难度直接开默认难度
   r = await dispatch({ ...A, group: g, msg: "#扫雷" })
   assert.match(textOf(r.replies), /扫雷 · 初级/)

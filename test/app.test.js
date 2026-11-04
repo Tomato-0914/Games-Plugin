@@ -153,6 +153,15 @@ test("官方机器人带按钮，其他适配器不带", async () => {
   assert.equal(resign.QQBot.action.data, "#认输")
   r = await dispatch({ ...A, group: g, msg: "#结束象棋", isMaster: true })
   assert.doesNotMatch(textOf(r.replies), /按钮/)
+  // 结束后：左边帮助，右边按原模式再来一局
+  r = await dispatch({ ...A, group: g, msg: "#人机象棋 困难 黑", adapter: "QQBot" })
+  r = await dispatch({ ...A, group: g, msg: "#认输", adapter: "QQBot" })
+  let end = r.replies.flat().find(m => m?.type === "button").data[0]
+  assert.deepEqual(end.map(b => [b.text, b.callback]), [["象棋帮助", "#象棋帮助"], ["再来一局", "#人机象棋 困难 黑"]])
+  r = await dispatch({ ...A, group: g, msg: "#人机象棋 简单", adapter: "QQBot" })
+  r = await dispatch({ ...A, group: g, msg: "#认输", adapter: "QQBot" })
+  end = r.replies.flat().find(m => m?.type === "button").data[0]
+  assert.equal(end[1].callback, "#人机象棋 简单")
   // 帮助只带三个按钮
   r = await dispatch({ ...A, group: g, msg: "#象棋帮助", adapter: "QQBot" })
   assert.match(textOf(r.replies), /\[按钮:发起对局,加入对局,人机对战\]$/)
@@ -206,7 +215,7 @@ test("游戏帮助按分类列出游戏，游戏版本", async () => {
   assert.match(textOf(r.replies), /游戏帮助[\s\S]*中国象棋 棋类 · Chinese_Chess[\s\S]*#象棋帮助[\s\S]*#游戏更新/)
   for (const msg of ["#游戏版本", "#棋版本"]) {
     r = await dispatch({ ...A, msg })
-    assert.match(textOf(r.replies), /Games-Plugin v1\.5\.0/, msg)
+    assert.match(textOf(r.replies), /Games-Plugin v1\.5\.1/, msg)
   }
   for (const msg of ["#棋类帮助", "#棋类版本"]) assert.equal((await dispatch({ ...A, msg })).handled, null, msg)
 })

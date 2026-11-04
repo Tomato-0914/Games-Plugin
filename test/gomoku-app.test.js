@@ -102,7 +102,14 @@ test("官方机器人：不写难度先发按钮；对局按钮带落子输入�
   assert.deepEqual([rows[0][0].input, rows[0][0].send], ["下", false])
   r = await dispatch({ ...A, group: g, msg: "#五子棋帮助", adapter: "QQBot" })
   assert.match(textOf(r.replies), /\[按钮:发起对局,加入对局,人机对战\]$/)
-  await dispatch({ ...A, group: g, msg: "#结束五子棋" })
+  // 结束后：左边帮助，右边按原模式再来一局
+  r = await dispatch({ ...A, group: g, msg: "#认输", adapter: "QQBot" })
+  let end = r.replies.flat().find(m => m?.type === "button").data[0]
+  assert.deepEqual(end.map(b => [b.text, b.callback]), [["五子棋帮助", "#五子棋帮助"], ["再来一局", "#人机五子棋 普通"]])
+  r = await dispatch({ ...A, group: g, msg: "#人机五子棋 困难 白", adapter: "QQBot" })
+  r = await dispatch({ ...A, group: g, msg: "#认输", adapter: "QQBot" })
+  end = r.replies.flat().find(m => m?.type === "button").data[0]
+  assert.equal(end[1].callback, "#人机五子棋 困难 白")
 })
 
 test("同一个群可以同时下象棋、五子棋、扫雷，指令互不干扰", async () => {

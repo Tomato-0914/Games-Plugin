@@ -137,6 +137,12 @@ function moveLine(room, rec, side) {
   return text + "\n"
 }
 
+/** “再来一局”：按这一局的模式重开（人机保留难度和执子颜色） */
+function replayCmd(room) {
+  if (room.mode !== "ai") return "#发起象棋"
+  return `#人机象棋 ${room.aiLevel}${room.aiSide === RED ? " 黑" : ""}`
+}
+
 /** 棋盘图 + 文字 + 按钮 */
 async function boardMessage(e, room, parts = [], { status } = {}) {
   const game = room.game
@@ -157,7 +163,7 @@ async function boardMessage(e, room, parts = [], { status } = {}) {
   msg.push(...parts)
   const buttons = room.status === "playing"
     ? gameButtons(e, room)
-    : makeButtons(e, [[{ text: "再来一局", cmd: "#发起象棋" }, { text: "人机对战", cmd: "#人机象棋" }]])
+    : makeButtons(e, [[{ text: "象棋帮助", cmd: "#象棋帮助" }, { text: "再来一局", cmd: replayCmd(room) }]])
   if (buttons) msg.push(buttons)
   return msg
 }

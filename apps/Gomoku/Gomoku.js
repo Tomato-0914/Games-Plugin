@@ -120,6 +120,12 @@ function turnLine(room) {
 
 const moveLine = (room, side, i) => `${sideName(side)} ${room.player(side).name}：${pointName(i)}\n`
 
+/** “再来一局”：按这一局的模式重开（人机保留难度和执子颜色） */
+function replayCmd(room) {
+  if (room.mode !== "ai") return "#发起五子棋"
+  return `#人机五子棋 ${room.aiLevel}${room.aiSide === BLACK ? " 白" : ""}`
+}
+
 async function boardMessage(e, room, parts = [], { status } = {}) {
   const game = room.game
   const forbidden = cfg().showForbidden !== false ? game.forbiddenPoints() : []
@@ -138,7 +144,7 @@ async function boardMessage(e, room, parts = [], { status } = {}) {
   msg.push(...parts)
   const buttons = room.status === "playing"
     ? gameButtons(e, room)
-    : makeButtons(e, [[{ text: "再来一局", cmd: "#发起五子棋" }, { text: "人机对战", cmd: "#人机五子棋" }]])
+    : makeButtons(e, [[{ text: "五子棋帮助", cmd: "#五子棋帮助" }, { text: "再来一局", cmd: replayCmd(room) }]])
   if (buttons) msg.push(buttons)
   return msg
 }

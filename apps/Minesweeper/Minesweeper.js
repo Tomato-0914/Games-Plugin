@@ -108,8 +108,9 @@ async function boardMessage(e, room, parts = [], { status = "", last = [] } = {}
   msg.push(...parts)
   const buttons = f.ended
     ? makeButtons(e, [[
+      // 帮助下方带难度按钮，相当于回到首页
+      { text: "扫雷帮助", cmd: "#扫雷帮助" },
       { text: "再来一盘", cmd: room.level === "自定义" ? `#扫雷 自定义 ${room.rows} ${room.cols} ${room.mines}` : `#扫雷 ${room.level}` },
-      { text: "换个难度", cmd: "#扫雷" },
     ]])
     : gameButtons(e, room)
   if (buttons) msg.push(buttons)
