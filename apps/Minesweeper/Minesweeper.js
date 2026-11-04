@@ -11,7 +11,8 @@ import { renderHtml, renderText, formatTime } from "../../games/minesweeper/Rend
  * 单人扫雷：一个群同时只能有一盘（只有开局的人能操作），私聊每人一盘
  * #扫雷 [初级/中级/高级/自定义 行 列 雷数]（官方机器人下不写难度时先发难度按钮）
  * 操作：C5 翻开、旗C5 插旗、c1c2c3 多格；对已翻开的数字再发一次坐标 = 快速翻开
- * #扫雷盘面 #扫雷提示 #扫雷自动 [开/关] #结束扫雷
+ * #扫雷盘面 #扫雷提示 #结束扫雷
+ * 自动翻开固定开启：数字周围插的旗数等于数字时，自动翻开其余格子
  * 第一下必定安全；无猜模式下只靠推理就能扫完；10 分钟无操作判定失败
  */
 
@@ -79,10 +80,6 @@ function gameButtons(e, room) {
     ],
     [
       { text: "提示", cmd: "#扫雷提示", permission: id },
-      // 按钮显示点击后的操作；指令写明开/关，点到旧消息里的按钮也不会反向切换
-      room.auto
-        ? { text: "自动：关", cmd: "#扫雷自动 关", permission: id }
-        : { text: "自动：开", cmd: "#扫雷自动 开", permission: id },
       { text: "结束", cmd: "#结束扫雷", permission: id },
     ],
   ])
@@ -102,7 +99,6 @@ async function boardMessage(e, room, parts = [], { status = "", last = [] } = {}
     elapsed: room.elapsed,
     status,
     last,
-    auto: !!room.auto,
     hints: limit ? `${room.hintsUsed || 0}/${limit}` : "",
     fontUrl,
   }), `minesweeper-${room.scope}`)
@@ -223,7 +219,6 @@ export class Minesweeper extends plugin {
         { reg: reg("^#?(?:扫雷(?:盘面|棋盘)|Minesweeper\\s*board)$"), fnc: "board" },
         { reg: reg("^#?(?:结束扫雷|Minesweeper\\s*end)$"), fnc: "end" },
         { reg: reg("^#?(?:扫雷提示|Minesweeper\\s*hint)$"), fnc: "hint" },
-        { reg: reg("^#?(?:扫雷自动(?:翻开)?|Minesweeper\\s*auto)\\s*(开|关|on|off)?$"), fnc: "auto" },
         { reg: START_RE, fnc: "start" },
         { reg: /^\s*#?\s*(?:插旗|旗|标记|标|!|！|翻开|翻|开)?\s*(?:[a-zA-Z]\d{1,2}[\s,，、]*)+$/, fnc: "ops", log: false },
       ],
@@ -265,7 +260,7 @@ export class Minesweeper extends plugin {
             { cmd: "C5", desc: "翻开 C 行第 5 列（行字母 + 列数字，也可以写 开C5）" },
             { cmd: "旗C5", desc: "插旗，再发一次取消（也可以写 标C5、!C5）" },
             { cmd: "c1c2c3", desc: "一次操作多格，空格、逗号可有可无" },
-            { cmd: "已翻开的数字", desc: "再发一次坐标：旗数对得上时自动翻开周围" },
+            { cmd: "自动翻开", desc: "数字周围插的旗数等于数字时，自动翻开其余格子" },
           ],
         },
         {
@@ -274,7 +269,6 @@ export class Minesweeper extends plugin {
           items: [
             { cmd: "#扫雷盘面", desc: "重新发送盘面" },
             ...(limit ? [{ cmd: "#扫雷提示", desc: `翻开一个安全格，每局 ${limit} 次${c.hintPenalty ? `，计时 +${c.hintPenalty} 秒` : ""}` }] : []),
-            { cmd: "#扫雷自动 开/关", desc: "数字周围旗数对得上时自动展开" },
             { cmd: "#结束扫雷", desc: "放弃这一盘，显示所有雷" },
           ],
           notes: [
@@ -283,7 +277,7 @@ export class Minesweeper extends plugin {
           ],
         },
       ],
-      footer: "English: #Minesweeper start easy | medium | hard | custom 10 20 30, board, hint, auto on/off, end",
+      footer: "English: #Minesweeper start easy | medium | hard | custom 10 20 30, board, hint, end",
     }
     const msg = [await helpMessage(data, "help-minesweeper")]
     const buttons = levelButtons(e)
@@ -354,7 +348,6 @@ export class Minesweeper extends plugin {
       steps: 0,
       hintsUsed: 0,
       penalty: 0,
-      auto: c.autoOpen === true,
     }))
     newRoom.lastEvent = e
     await store.save(newRoom)
@@ -394,6 +387,10 @@ export class Minesweeper extends plugin {
       }
       room.steps += done.length
       if (done.length) notes.unshift(`🚩 插旗：${done.join("、")}`)
+      if (f.status === "playing") {
+        const auto = f.autoChord().opened.length
+        if (auto) notes.push(`自动翻开了 ${auto} 格`)
+      }
     } else {
       // 第一下：避开这一格放雷
       if (f.status === "ready") {
@@ -414,13 +411,14 @@ export class Minesweeper extends plugin {
         if (r.note === "flagged") notes.push(`${name(i)} 插了旗，先发 旗${name(i)} 取消`)
         else if (r.note === "flags") notes.push(`${name(i)} 周围的旗数和数字不一致，不能快速翻开`)
       }
-      if (room.auto && !f.ended) opened += f.autoChord().opened.length
+      if (!f.ended) opened += f.autoChord().opened.length
       if (opened) notes.unshift(`翻开 ${res.cells.map(name).join("、")}，打开了 ${opened} 格`)
     }
 
     if (f.status === "won") return finish(room, e, [winText(room)], { status: "扫雷成功！", last: res.cells })
     if (f.status === "lost") {
-      return finish(room, e, [...at(room, room.player.id), `💥 踩到雷了！${name(f.exploded)} 是雷，用时 ${formatTime(room.elapsed)}`], { status: "踩到雷了！", last: [f.exploded] })
+      const why = res.flag ? `旗插错了，自动翻开时踩到 ${name(f.exploded)}` : `${name(f.exploded)} 是雷`
+      return finish(room, e, [...at(room, room.player.id), `💥 踩到雷了！${why}，用时 ${formatTime(room.elapsed)}`], { status: "踩到雷了！", last: [f.exploded] })
     }
     await store.save(room)
     arm(room)
@@ -428,7 +426,7 @@ export class Minesweeper extends plugin {
     return true
   }
 
-  /* ---------- 盘面 / 提示 / 自动 / 结束 ---------- */
+  /* ---------- 盘面 / 提示 / 结束 ---------- */
 
   async board(e) {
     const { room, foreign } = context(e)
@@ -488,38 +486,13 @@ export class Minesweeper extends plugin {
     const r = f.reveal(pick)
     room.steps++
     let opened = r.opened.length
-    if (room.auto && !f.ended) opened += f.autoChord().opened.length
+    if (!f.ended) opened += f.autoChord().opened.length
     const line = `💡 提示：${cellName(pick, f.cols)} 是安全的，打开了 ${opened} 格（已用 ${room.hintsUsed}/${limit} 次${c.hintPenalty ? `，计时 +${c.hintPenalty} 秒` : ""}）`
     if (f.status === "won") return finish(room, e, [line, "\n", winText(room)], { status: "扫雷成功！", last: [pick] })
     if (f.status === "lost") return finish(room, e, [line, "\n💥 踩到雷了！"], { status: "踩到雷了！", last: [f.exploded] })
     await store.save(room)
     arm(room)
     await e.reply(await boardMessage(e, room, [line], { last: [pick] }))
-    return true
-  }
-
-  async auto(e) {
-    const { room, foreign } = context(e)
-    if (foreign) return false
-    if (!room || !isPlayer(room, e)) {
-      await e.reply(room ? "只有正在扫雷的人可以切换自动翻开" : "现在没有进行中的扫雷")
-      return true
-    }
-    const arg = (e.msg.match(/(开|关|on|off)\s*$/i)?.[1] || "").toLowerCase()
-    room.auto = arg ? arg === "开" || arg === "on" : !room.auto
-    room.lastEvent = e
-    room.lastActionAt = Date.now()
-    const f = room.field
-    let line = `自动翻开：${room.auto ? "开（数字周围旗数对得上时自动展开）" : "关"}`
-    if (room.auto && f.status === "playing") {
-      const opened = f.autoChord().opened.length
-      if (opened) line += `\n自动打开了 ${opened} 格`
-      if (f.status === "won") return finish(room, e, [line, "\n", winText(room)], { status: "扫雷成功！" })
-      if (f.status === "lost") return finish(room, e, [line, `\n💥 旗插错了，${cellName(f.exploded, f.cols)} 是雷`], { status: "踩到雷了！", last: [f.exploded] })
-    }
-    await store.save(room)
-    arm(room)
-    await e.reply(await boardMessage(e, room, [line]))
     return true
   }
 

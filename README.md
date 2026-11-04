@@ -22,7 +22,7 @@
 - 初级 9×9 / 中级 16×16 / 高级 16×30，也可以自定义大小和雷数
 - 第一下必定安全；**无猜模式**：只生成靠推理就能扫完的棋盘
 - 坐标直接发：`C5` 翻开，`旗C5` 插旗，`c1c2c3` 一次多格；对已翻开的数字再发一次坐标即快速翻开
-- 提示（每盘次数可配置）、自动翻开开关
+- 提示（每盘次数可配置）；自动翻开固定开启：数字周围插的旗数等于数字时自动翻开其余格子
 - 一个群同时一盘，私聊每人一盘；10 分钟无操作提醒后判定失败；重启后恢复
 
 ### 通用
@@ -90,10 +90,9 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 | `C5` / `旗C5` / `c1c2c3` | 翻开（也可以写 `开C5`）/ 插旗（再发一次取消）/ 一次多格；官方机器人下有“翻开”“插旗”输入按钮 |
 | `#扫雷盘面` | 重新发送盘面 |
 | `#扫雷提示` | 翻开一个安全格（默认每盘 1 次，计时 +10 秒） |
-| `#扫雷自动 开` / `关` | 自动翻开：数字周围旗数对得上时自动展开 |
 | `#结束扫雷` | 放弃这一盘（本人、群管理或主人） |
 
-英文指令：`#Minesweeper start easy | medium | hard | custom 10 20 30`、`#Minesweeper board | hint | auto on | end | help`。
+英文指令：`#Minesweeper start easy | medium | hard | custom 10 20 30`、`#Minesweeper board | hint | end | help`。
 
 坐标是“行字母 + 列数字”，大小写都可以；插旗也可以写 `标C5`、`!C5`。
 
@@ -129,7 +128,6 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 | `minesweeper.idleWarnBefore` | `120` | 判定失败前多少秒提醒，0 不提醒 |
 | `minesweeper.hintLimit` | `1` | 每盘提示次数，0 关闭提示 |
 | `minesweeper.hintPenalty` | `10` | 每次提示计时增加的秒数 |
-| `minesweeper.autoOpen` | `false` | 开局时自动翻开的默认状态 |
 | `minesweeper.maxBatch` | `30` | 一条消息最多操作的格子数 |
 | `minesweeper.maxRows` / `maxCols` / `maxDensity` | `20` / `30` / `0.3` | 自定义难度上限（行最多 26） |
 | `engine.maxConcurrent` | `2` | 同时进行的 AI 思考数量 |

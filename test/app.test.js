@@ -206,7 +206,7 @@ test("游戏帮助按分类列出游戏，游戏版本", async () => {
   assert.match(textOf(r.replies), /游戏帮助[\s\S]*中国象棋 棋类 · Chinese_Chess[\s\S]*#象棋帮助[\s\S]*#游戏更新/)
   for (const msg of ["#游戏版本", "#棋版本"]) {
     r = await dispatch({ ...A, msg })
-    assert.match(textOf(r.replies), /Games-Plugin v1\.4\.3/, msg)
+    assert.match(textOf(r.replies), /Games-Plugin v1\.4\.4/, msg)
   }
   for (const msg of ["#棋类帮助", "#棋类版本"]) assert.equal((await dispatch({ ...A, msg })).handled, null, msg)
 })

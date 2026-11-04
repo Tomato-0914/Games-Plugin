@@ -71,7 +71,7 @@ test("开局、第一下安全、插旗、批量、一个群只能一盘、结�
   assert.ok(!kv.has(KEY(`group:${g}`)))
 })
 
-test("提示：每局一次；自动翻开开关", async () => {
+test("提示：每局一次；自动翻开固定开启", async () => {
   const g = "701"
   await dispatch({ ...A, group: g, msg: "#扫雷 初级" })
   let r = await dispatch({ ...A, group: g, msg: "#扫雷提示" })
@@ -83,10 +83,9 @@ test("提示：每局一次；自动翻开开关", async () => {
   if (!/扫雷成功/.test(t)) {
     r = await dispatch({ ...A, group: g, msg: "#扫雷提示" })
     assert.match(textOf(r.replies), /1 次提示已经用完/)
-    r = await dispatch({ ...A, group: g, msg: "#扫雷自动 开" })
-    assert.match(textOf(r.replies), /自动翻开：开/)
-    r = await dispatch({ ...A, group: g, msg: "#扫雷自动" })
-    assert.match(textOf(r.replies), /自动翻开：关/)
+    // 开关指令已移除
+    r = await dispatch({ ...A, group: g, msg: "#扫雷自动 关" })
+    assert.equal(r.handled, null)
     await dispatch({ ...A, group: g, msg: "#结束扫雷" })
   }
 })
@@ -113,17 +112,13 @@ test("官方机器人：不写难度先发按钮；对局按钮", async () => {
   assert.equal(btn[2].permission, "111")
   assert.ok(!kv.has(KEY(`group:${g}`)))
   r = await dispatch({ ...A, group: g, msg: btn[0].callback, adapter: "QQBot" })
-  assert.match(textOf(r.replies), /\[按钮:翻开,插旗,提示,自动：开,结束\]/)
+  assert.match(textOf(r.replies), /\[按钮:翻开,插旗,提示,结束\]/)
   const rows = r.replies.flat().find(m => m?.type === "button").data
   assert.deepEqual(rows[0].map(b => [b.text, b.input, b.send, b.permission]), [["翻开", "开", false, "111"], ["插旗", "旗", false, "111"]])
   assert.equal(rows[0][0].callback, undefined)
   // 输入按钮填入的文字加坐标可以直接用
   r = await dispatch({ ...A, group: g, msg: "开E5", adapter: "QQBot" })
   assert.match(textOf(r.replies), /翻开 E5，打开了 \d+ 格/)
-  assert.equal(rows[1].find(b => b.text === "自动：开").callback, "#扫雷自动 开")
-  r = await dispatch({ ...A, group: g, msg: "#扫雷自动 开", adapter: "QQBot" })
-  const autoBtn = r.replies.flat().find(m => m?.type === "button").data[1].find(b => b.text.startsWith("自动"))
-  assert.deepEqual([autoBtn.text, autoBtn.callback], ["自动：关", "#扫雷自动 关"])
   r = await dispatch({ ...A, group: g, msg: "旗 a1", adapter: "QQBot" })
   assert.match(textOf(r.replies), /插旗：A1|A1 已经翻开/)
   r = await dispatch({ ...A, group: g, msg: "#结束扫雷", adapter: "QQBot" })

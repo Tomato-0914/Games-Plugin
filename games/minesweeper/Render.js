@@ -18,15 +18,20 @@ export const formatTime = sec => {
 
 /**
  * @param {import("./Board.js").Minefield} f
- * @param {object} info { title, player, steps, elapsed, status, last: number[], auto, hints, fontUrl }
+ * @param {object} info { title, player, steps, elapsed, status, last: number[], hints, fontUrl }
  */
-export function renderHtml(f, { title = "扫雷", player = "", steps = 0, elapsed = 0, status = "", last = [], auto = false, hints = "", fontUrl = "" } = {}) {
+export function renderHtml(f, { title = "扫雷", player = "", steps = 0, elapsed = 0, status = "", last = [], hints = "", fontUrl = "" } = {}) {
   const lastSet = new Set(last)
   const ended = f.ended
   const cell = f.cols > 16 ? 32 : 36
   const cells = []
-  cells.push(`<div class="lbl"></div>`)
-  for (let c = 0; c < f.cols; c++) cells.push(`<div class="lbl">${c + 1}</div>`)
+  // 四周都印行列编号，棋盘左右、上下对称
+  const colLabels = () => {
+    cells.push(`<div class="lbl"></div>`)
+    for (let c = 0; c < f.cols; c++) cells.push(`<div class="lbl">${c + 1}</div>`)
+    cells.push(`<div class="lbl"></div>`)
+  }
+  colLabels()
   for (let r = 0; r < f.rows; r++) {
     cells.push(`<div class="lbl">${rowName(r)}</div>`)
     for (let c = 0; c < f.cols; c++) {
@@ -55,7 +60,9 @@ export function renderHtml(f, { title = "扫雷", player = "", steps = 0, elapse
       if (lastSet.has(i)) cls.push("last")
       cells.push(`<div class="cell ${cls.join(" ")}">${inner}</div>`)
     }
+    cells.push(`<div class="lbl">${rowName(r)}</div>`)
   }
+  colLabels()
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><style>
 ${fontUrl ? `@font-face { font-family: "ChessKai"; src: url("${fontUrl}") format("woff2"); font-display: block; }` : ""}
@@ -68,8 +75,8 @@ body { background: #2c1e12; font-family: ${FONT}; }
 .counter { display: flex; align-items: center; gap: 6px; background: #1a110a; border: 1.5px solid #6b4a2a; border-radius: 8px; padding: 3px 10px; font-size: 22px; color: #ff6b4a; font-family: Consolas, Menlo, monospace; font-weight: bold; }
 .counter svg { width: 18px; height: 18px; }
 .sub { display: flex; gap: 16px; font-size: 16px; opacity: .85; margin: 6px 0 10px; }
-.board { display: grid; grid-template-columns: 24px repeat(${f.cols}, ${cell}px); grid-auto-rows: ${cell}px; gap: 0;
-  background: linear-gradient(160deg, #f1d39a, #d9ab62); padding: 6px 10px 10px 4px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
+.board { display: grid; grid-template-columns: 26px repeat(${f.cols}, ${cell}px) 26px; grid-template-rows: 26px repeat(${f.rows}, ${cell}px) 26px; gap: 0; width: max-content; margin: 0 auto;
+  background: linear-gradient(160deg, #f1d39a, #d9ab62); padding: 4px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.5); }
 .lbl { display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: bold; color: #5b3a1a; }
 .cell { display: flex; align-items: center; justify-content: center; position: relative; }
 .cell.hide { background: linear-gradient(145deg, #e9c98d, #c9a063); border: 3px solid; border-color: #fbe9c4 #8a6034 #8a6034 #fbe9c4; }
@@ -86,7 +93,7 @@ body { background: #2c1e12; font-family: ${FONT}; }
     <span class="counter">${MINE_SVG.replace('fill="#111"', 'fill="#ff6b4a"').replace(/stroke="#111"/, 'stroke="#ff6b4a"')}${String(f.minesLeft).padStart(3, "0")}</span>
     <span class="counter">${formatTime(elapsed)}</span>
   </span></div>
-  <div class="sub"><span>玩家：${esc(player)}</span><span>第 ${steps} 步</span><span>自动翻开：${auto ? "开" : "关"}</span>${hints ? `<span>提示：${esc(hints)}</span>` : ""}</div>
+  <div class="sub"><span>玩家：${esc(player)}</span><span>第 ${steps} 步</span>${hints ? `<span>提示：${esc(hints)}</span>` : ""}</div>
   <div class="board">${cells.join("")}</div>
   <div class="foot"><span>翻开：C5　插旗：旗C5　多格：c1c2c3</span><span class="status">${esc(status)}</span></div>
 </div></body></html>`
