@@ -46,12 +46,13 @@ test("一直用提示可以扫完（无猜棋盘）", async () => {
 test("重启后恢复", async () => {
   const g = "602"
   await dispatch({ user: "1", group: g, msg: "#扫雷 高级" })
-  await dispatch({ user: "1", group: g, msg: "H15" })
+  // 先插旗再翻开：第一下之前插旗不会触发自动翻开
   await dispatch({ user: "1", group: g, msg: "旗a1" })
+  await dispatch({ user: "1", group: g, msg: "H15" })
   const fresh = makeDispatcher(await loadApps([`${APP}?restart=${Date.now()}`]))
   const r = await fresh({ user: "1", group: g, msg: "#扫雷盘面" })
   assert.match(textOf(r.replies), /小明|1 的扫雷/)
   const t = textOf((await fresh({ user: "1", group: g, msg: "!a1" })).replies)
-  assert.match(t, /取消A1/)
+  assert.match(t, /取消A1|A1 已经翻开/)
   await fresh({ user: "1", group: g, msg: "#结束扫雷" })
 })

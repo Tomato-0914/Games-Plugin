@@ -47,22 +47,24 @@ test("开局、第一下安全、插旗、批量、一个群只能一盘、结�
   // 普通聊天不处理
   r = await dispatch({ ...A, group: g, msg: "hello" })
   assert.equal(r.handled, null)
-  // 第一下必定安全，并且会打开一片
-  r = await dispatch({ ...A, group: g, msg: "H8" })
-  let t = textOf(r.replies)
-  assert.match(t, /翻开 H8，打开了 \d+ 格/)
-  assert.doesNotMatch(t, /踩到雷/)
   // 越界
   r = await dispatch({ ...A, group: g, msg: "Q1" })
   assert.match(textOf(r.replies), /没有 Q 行/)
-  // 插旗 / 取消
+  // 插旗 / 取消（第一下之前插旗不会触发自动翻开，结果确定）
   r = await dispatch({ ...A, group: g, msg: "旗a1a2" })
   assert.match(textOf(r.replies), /插旗：A1、A2/)
   r = await dispatch({ ...A, group: g, msg: "!a1" })
   assert.match(textOf(r.replies), /插旗：取消A1/)
-  // 插旗的格子不能翻开
+  // 插旗的格子不能翻开，也不会以它为第一下放雷
   r = await dispatch({ ...A, group: g, msg: "a2" })
   assert.match(textOf(r.replies), /A2 插了旗/)
+  r = await dispatch({ ...A, group: g, msg: "旗a2" })
+  assert.match(textOf(r.replies), /取消A2/)
+  // 第一下必定安全，并且会打开一片
+  r = await dispatch({ ...A, group: g, msg: "H8" })
+  const t = textOf(r.replies)
+  assert.match(t, /翻开 H8，打开了 \d+ 格/)
+  assert.doesNotMatch(t, /踩到雷/)
   // 管理可以结束
   r = await dispatch({ ...B, group: g, msg: "#结束扫雷" })
   assert.match(textOf(r.replies), /只有正在扫雷的人/)
@@ -119,9 +121,11 @@ test("官方机器人：不写难度先发按钮；对局按钮", async () => {
   // 输入按钮填入的文字加坐标可以直接用
   r = await dispatch({ ...A, group: g, msg: "开E5", adapter: "QQBot" })
   assert.match(textOf(r.replies), /翻开 E5，打开了 \d+ 格/)
+  // 插旗后会自动翻开：可能继续、扫完或因插错旗踩雷，三种都算正常
   r = await dispatch({ ...A, group: g, msg: "旗 a1", adapter: "QQBot" })
-  assert.match(textOf(r.replies), /插旗：A1|A1 已经翻开/)
-  r = await dispatch({ ...A, group: g, msg: "#结束扫雷", adapter: "QQBot" })
+  const t = textOf(r.replies)
+  assert.match(t, /插旗：A1|A1 已经翻开|扫雷成功|踩到雷/)
+  if (!/扫雷成功|踩到雷/.test(t)) r = await dispatch({ ...A, group: g, msg: "#结束扫雷", adapter: "QQBot" })
   assert.match(textOf(r.replies), /\[按钮:再来一盘,换个难度\]/)
   // 其他适配器不写难度直接开默认难度
   r = await dispatch({ ...A, group: g, msg: "#扫雷" })

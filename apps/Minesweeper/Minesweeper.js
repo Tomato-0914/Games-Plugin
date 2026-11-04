@@ -392,10 +392,11 @@ export class Minesweeper extends plugin {
         if (auto) notes.push(`自动翻开了 ${auto} 格`)
       }
     } else {
-      // 第一下：避开这一格放雷
-      if (f.status === "ready") {
+      // 第一下：以第一个没插旗的格子为中心放雷（这一格和周围不会有雷）
+      const first = res.cells.find(i => !f.flag[i])
+      if (f.status === "ready" && first !== undefined) {
         const c = cfg()
-        const g = generate({ rows: f.rows, cols: f.cols, mines: f.mines, first: res.cells[0], noGuess: c.noGuess !== false, timeBudget: 1000 })
+        const g = generate({ rows: f.rows, cols: f.cols, mines: f.mines, first, noGuess: c.noGuess !== false, timeBudget: 1000 })
         f.setMines(g.mineList)
         f.status = "playing"
         room.noGuess = g.noGuess
@@ -405,6 +406,10 @@ export class Minesweeper extends plugin {
       let opened = 0
       for (const i of res.cells) {
         if (f.ended) break
+        if (f.status === "ready") {
+          notes.push(`${name(i)} 插了旗，先发 旗${name(i)} 取消`)
+          continue
+        }
         const r = f.reveal(i)
         room.steps++
         opened += r.opened.length
