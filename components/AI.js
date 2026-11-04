@@ -14,6 +14,14 @@ const ENGINES = {
       return type === "eval" ? evaluateFor(data) : think({ ...data, level: data.level === "困难" ? "普通" : data.level })
     },
   },
+  go: {
+    // 围棋没有 AI，只用线程做终局数子估算
+    worker: new URL("../games/go/ScoreWorker.js", import.meta.url),
+    async inline(type, data) {
+      const { analyze } = await import("../games/go/Score.js")
+      return analyze(data)
+    },
+  },
   gomoku: {
     worker: new URL("../games/gomoku/AIWorker.js", import.meta.url),
     async inline(type, data) {
@@ -68,7 +76,7 @@ function runInWorker(engine, type, data) {
 /**
  * @param {"think" | "eval"} type
  * @param {object} data 各游戏自己的参数（象棋 { fen, moves, level }，五子棋 { moves, rules, level }）
- * @param {"xiangqi" | "gomoku"} [game]
+ * @param {"xiangqi" | "gomoku" | "go"} [game]
  */
 export function runEngine(type, data, game = "xiangqi") {
   const engine = ENGINES[game]

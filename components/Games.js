@@ -32,6 +32,20 @@ export const GAMES = [
     ],
   },
   {
+    id: "Go",
+    name: "围棋",
+    category: "棋类",
+    piece: "弈",
+    desc: "双人对战 · 9 / 13 / 19 路 · 中国规则数子法",
+    help: "#围棋帮助",
+    commands: [
+      { cmd: "#围棋帮助", desc: "规则速览与全部指令" },
+      { cmd: "#发起围棋", desc: "发起对局" },
+      { cmd: "#加入围棋", desc: "加入对局" },
+      { cmd: "#停一手", desc: "双方连续停一手进入数子" },
+    ],
+  },
+  {
     id: "Minesweeper",
     name: "扫雷",
     category: "益智",
