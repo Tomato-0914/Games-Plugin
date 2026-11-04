@@ -1,7 +1,7 @@
 <div align="center">
   <h1>Games-Plugin</h1>
   <p><a href="https://github.com/TimeRainStarSky/Yunzai" target="_blank">TRSS-Yunzai</a> 群聊小游戏插件</p>
-  <p>已上线：中国象棋（双人 / 人机）　·　五子棋（双人 / 人机）　·　围棋（双人）　·　扫雷（单人）</p>
+  <p>已上线：中国象棋（双人 / 人机）　·　五子棋（双人 / 人机）　·　围棋（双人）　·　飞行棋（2–4 人）　·　扫雷（单人）</p>
 </div>
 
 ## 功能
@@ -30,6 +30,12 @@
 - 提子、禁着点、打劫（禁止全局同形）；双方连续停一手后，机器人估算死子，双方确认后结束
 - 白方开局可以连续让子（最多 5 次），让子局按中国规则贴还
 - 双人对战；悔棋、求和、认输需对方同意；每步 5 分钟；重启后恢复；帮助里附规则速览
+
+### 飞行棋
+
+- 2–4 人，红黄蓝绿四色；人不够可以补机器人，也可以单人和机器人玩
+- 掷 6 起飞、6 再掷、连三个 6 作废；跳子、飞行捷径、撞子、叠子、终点反弹
+- 每次操作 60 秒，超时机器人代走，连续 3 次转托管；排出第 1、2、3 名，最后一名为输
 
 ### 扫雷
 
@@ -107,7 +113,7 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 
 英文指令：`#Gomoku create | join | ai | board | undo | draw | resign | end | help`。
 
-同一个群里可以同时有一局象棋、一局五子棋、一局围棋和一盘扫雷；`#悔棋`、`#认输` 这类通用指令按你参与的那一局处理。
+同一个群里可以同时有一局象棋、一局五子棋、一局围棋、一局飞行棋和一盘扫雷；`#悔棋`、`#认输` 这类通用指令按你参与的那一局处理。
 
 ### 围棋
 
@@ -124,6 +130,22 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 | `#结束围棋` | 强制结束（发起人 / 群管理 / 主人） |
 
 英文指令（必须带 `#`）：`#Go create | join | pass | handicap | board | undo | draw | resign | end | help`。
+
+### 飞行棋
+
+| 指令 | 说明 |
+| --- | --- |
+| `#飞行棋` / `#飞行棋帮助` | 规则与指令（图片） |
+| `#发起飞行棋` / `#加入飞行棋` | 发起、加入（群聊，最多 4 人） |
+| `#开始飞行棋` / `#开始飞行棋 补机器人` | 发起人开始（至少 2 人），或把空位补成机器人 |
+| `#人机飞行棋 [1-3]` | 和 1–3 个机器人玩（默认 3 个） |
+| `#掷骰子`（或 `掷`） | 轮到你时掷骰子 |
+| `1`–`4` | 选择要走的飞机（只有一种走法时自动走） |
+| `#飞行棋棋盘` | 重新发送棋盘 |
+| `#退出飞行棋` | 交给机器人托管 |
+| `#结束飞行棋` | 强制结束（发起人 / 群管理 / 主人） |
+
+英文指令：`#FlyingChess create | join | start | ai | roll | board | quit | end | help`。
 
 ### 扫雷
 
@@ -181,6 +203,10 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 | `go.moveTimeout` / `moveWarnBefore` | `300` / `60` | 每步限时与提前提醒（秒） |
 | `go.scoreTimeout` | `120` | 数子确认等待时间（秒） |
 | `go.joinTimeout` / `requestTimeout` | `300` / `60` | 同象棋 |
+| `flying.joinTimeout` | `300` | 发起后等待加入的时间（秒） |
+| `flying.actionTimeout` | `60` | 每次操作的时间（秒），超时机器人代走 |
+| `flying.hostAfter` | `3` | 连续几次超时转托管 |
+| `flying.allowPrivate` | `true` | 是否允许私聊人机 |
 | `minesweeper.defaultLevel` | `初级` | 不写难度时的默认难度（官方机器人下先发按钮） |
 | `minesweeper.noGuess` | `true` | 无猜模式 |
 | `minesweeper.idleTimeout` | `600` | 多少秒无操作判定失败，0 不限 |
@@ -212,7 +238,7 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 pnpm test   # 或 npm test
 ```
 
-测试覆盖：象棋走法生成（perft）、特殊规则、记谱解析、AI；五子棋禁手（三三、四四、同线四四、被堵的三、五连优先、长连）、AI；围棋提子、禁着点、打劫、让子、数子、死子估算（含快速棋盘与规则引擎的交叉检查）；扫雷规则、求解器正确性、无猜生成；以及模拟 Yunzai 环境下的完整对局流程。
+测试覆盖：象棋走法生成（perft）、特殊规则、记谱解析、AI；五子棋禁手（三三、四四、同线四四、被堵的三、五连优先、长连）、AI；围棋提子、禁着点、打劫、让子、数子、死子估算（含快速棋盘与规则引擎的交叉检查）；飞行棋棋盘几何、起飞、跳子、飞棋、撞子、叠子、终点反弹、连三个 6、名次（骰子可注入）；扫雷规则、求解器正确性、无猜生成；以及模拟 Yunzai 环境下的完整对局流程。
 
 每个游戏的规则在 `games/<游戏>/`，不依赖 Yunzai；`apps/` 负责指令和消息；`components/` 是共用的房间、截图、帮助图、AI 调度、配置和适配器工具。新增游戏时在 `components/Games.js` 登记，`#游戏帮助` 会自动列出。
 

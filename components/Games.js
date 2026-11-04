@@ -46,6 +46,20 @@ export const GAMES = [
     ],
   },
   {
+    id: "FlyingChess",
+    name: "飞行棋",
+    category: "棋类",
+    piece: "飞",
+    desc: "2–4 人 · 可补机器人 · 排出名次",
+    help: "#飞行棋帮助",
+    commands: [
+      { cmd: "#飞行棋帮助", desc: "规则与全部指令" },
+      { cmd: "#发起飞行棋", desc: "发起对局" },
+      { cmd: "#加入飞行棋", desc: "加入对局" },
+      { cmd: "#人机飞行棋", desc: "和机器人玩" },
+    ],
+  },
+  {
     id: "Minesweeper",
     name: "扫雷",
     category: "益智",
