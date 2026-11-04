@@ -18,6 +18,20 @@ export const GAMES = [
     ],
   },
   {
+    id: "Gomoku",
+    name: "五子棋",
+    category: "棋类",
+    piece: "棋",
+    desc: "双人对战 · 人机对战（三档难度）· 黑方三三、四四禁手",
+    help: "#五子棋帮助",
+    commands: [
+      { cmd: "#五子棋帮助", desc: "玩法与全部指令" },
+      { cmd: "#发起五子棋", desc: "发起双人对局" },
+      { cmd: "#加入五子棋", desc: "加入对局" },
+      { cmd: "#人机五子棋", desc: "和 Bot 下棋" },
+    ],
+  },
+  {
     id: "Minesweeper",
     name: "扫雷",
     category: "益智",

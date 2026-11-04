@@ -5,7 +5,23 @@
 import { Worker } from "node:worker_threads"
 import Config from "./Config.js"
 
-const WORKER_FILE = new URL("../games/xiangqi/EngineWorker.js", import.meta.url)
+/** 各游戏的 AI 线程文件与主线程降级实现 */
+const ENGINES = {
+  xiangqi: {
+    worker: new URL("../games/xiangqi/EngineWorker.js", import.meta.url),
+    async inline(type, data) {
+      const { think, evaluateFor } = await import("../games/xiangqi/Engine.js")
+      return type === "eval" ? evaluateFor(data) : think({ ...data, level: data.level === "困难" ? "普通" : data.level })
+    },
+  },
+  gomoku: {
+    worker: new URL("../games/gomoku/AIWorker.js", import.meta.url),
+    async inline(type, data) {
+      const { think, evaluate } = await import("../games/gomoku/AI.js")
+      return type === "eval" ? evaluate(data) : think(data)
+    },
+  },
+}
 const HARD_TIMEOUT = 30 * 1000
 
 let running = 0
@@ -23,11 +39,11 @@ function next() {
   }
 }
 
-function runInWorker(type, data) {
+function runInWorker(engine, type, data) {
   return new Promise((resolve, reject) => {
     let worker
     try {
-      worker = new Worker(WORKER_FILE, { workerData: { type, data } })
+      worker = new Worker(engine.worker, { workerData: { type, data } })
     } catch (err) {
       reject(err)
       return
@@ -49,25 +65,21 @@ function runInWorker(type, data) {
   })
 }
 
-/** 线程不可用时在主线程计算 */
-async function runInline(type, data) {
-  const { think, evaluateFor } = await import("../games/xiangqi/Engine.js")
-  return type === "eval" ? evaluateFor(data) : think({ ...data, level: data.level === "困难" ? "普通" : data.level })
-}
-
 /**
  * @param {"think" | "eval"} type
- * @param {object} data { fen, moves, level }
+ * @param {object} data 各游戏自己的参数（象棋 { fen, moves, level }，五子棋 { moves, rules, level }）
+ * @param {"xiangqi" | "gomoku"} [game]
  */
-export function runEngine(type, data) {
+export function runEngine(type, data, game = "xiangqi") {
+  const engine = ENGINES[game]
   return new Promise((resolve, reject) => {
     queue.push(async () => {
       try {
-        resolve(await runInWorker(type, data))
+        resolve(await runInWorker(engine, type, data))
       } catch (err) {
         logger?.warn?.(`[Games-Plugin] AI 线程失败，改用主线程：${err.message}`)
         try {
-          resolve(await runInline(type, data))
+          resolve(await engine.inline(type, data))
         } catch (err2) {
           reject(err2)
         }

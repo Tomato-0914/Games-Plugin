@@ -1,7 +1,7 @@
 <div align="center">
   <h1>Games-Plugin</h1>
   <p><a href="https://github.com/TimeRainStarSky/Yunzai" target="_blank">TRSS-Yunzai</a> 群聊小游戏插件</p>
-  <p>已上线：中国象棋（双人 / 人机）　·　扫雷（单人）</p>
+  <p>已上线：中国象棋（双人 / 人机）　·　五子棋（双人 / 人机）　·　扫雷（单人）</p>
 </div>
 
 ## 功能
@@ -16,6 +16,13 @@
 - 每步限时（默认 120 秒），超时前提醒，超时判负
 - 悔棋、求和、认输；重启后对局自动恢复
 - 适配 LLOneBot（OneBot v11）和 QQ 官方机器人（[QQBot-Plugin](https://github.com/Tomato-0914/QQBot-Plugin)），官方机器人下附带按钮
+
+### 五子棋
+
+- 15×15 白色棋盘，四周印列字母 A–O 和行号 1–15；黑先，五子连珠为胜
+- 黑方禁手：三三、四四（同时成五时不算）；黑方回合在棋盘上用 × 标出禁手点
+- 群内双人对战、人机对战（简单 / 普通 / 困难），AI 执黑时同样遵守禁手
+- 悔棋、求和、认输（双人需对方同意）；每步限时；重启后恢复
 
 ### 扫雷
 
@@ -79,6 +86,22 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 - 红方习惯用中文数字、黑方习惯用阿拉伯数字，两种数字双方都能识别；繁体（`傌`、`俥`、`砲`）也能识别
 - 坐标：`h2e2`（列 a–i，行 0–9，红方在下），棋盘图四周印有坐标
 
+### 五子棋
+
+| 指令 | 说明 |
+| --- | --- |
+| `#五子棋` / `#五子棋帮助` | 五子棋玩法与指令（图片） |
+| `#发起五子棋` / `#发起五子棋 黑` / `#发起五子棋 白` | 发起双人对局（群聊）；不指定颜色时，开局随机分配黑白 |
+| `#加入五子棋` | 加入对局，加入后立即开始，黑方先下 |
+| `#人机五子棋 [难度] [黑/白]` | 人机对战，默认执黑先下；官方机器人下不写难度时先发难度按钮 |
+| `H8` / `8H` / `下H8` | 轮到你时直接发送坐标（列字母 A–O + 行号 1–15）；官方机器人下有“落子”输入按钮 |
+| `#棋盘` `#悔棋` `#求和` `#认输` | 同象棋；双人对战都需对方同意 |
+| `#结束五子棋` | 强制结束，不计胜负 |
+
+英文指令：`#Gomoku create | join | ai | board | undo | draw | resign | end | help`。
+
+同一个群里可以同时有一局象棋、一局五子棋和一盘扫雷；`#悔棋`、`#认输` 这类通用指令按你参与的那一局处理。
+
 ### 扫雷
 
 | 指令 | 说明 |
@@ -122,6 +145,13 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 | `xiangqi.aiUndoLimit` | `3` | 人机对战每局悔棋次数 |
 | `xiangqi.requestTimeout` | `60` | 悔棋、求和请求的有效时间（秒） |
 | `xiangqi.allowPrivate` | `true` | 是否允许私聊人机对战 |
+| `gomoku.joinTimeout` / `moveTimeout` / `moveWarnBefore` / `requestTimeout` | `300` / `120` / `30` / `60` | 同象棋 |
+| `gomoku.defaultAiLevel` | `普通` | 默认人机难度：简单 / 普通 / 困难 |
+| `gomoku.aiUndoLimit` | `3` | 人机对战每局悔棋次数 |
+| `gomoku.forbidden` | `true` | 黑方三三、四四禁手 |
+| `gomoku.overline` | `win` | 长连（六子以上）：`win` 算赢，`forbidden` 黑方禁手 |
+| `gomoku.forbiddenLoses` | `false` | 黑方下在禁手点：`false` 不允许落子并提示，`true` 直接判负 |
+| `gomoku.showForbidden` | `true` | 黑方回合在棋盘上标出禁手点 |
 | `minesweeper.defaultLevel` | `初级` | 不写难度时的默认难度（官方机器人下先发按钮） |
 | `minesweeper.noGuess` | `true` | 无猜模式 |
 | `minesweeper.idleTimeout` | `600` | 多少秒无操作判定失败，0 不限 |
@@ -141,6 +171,8 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 - 同一个群里同时有官方机器人和 LLOneBot 时，对局只由开局的那个 Bot 处理，不会重复回复
 - 重复局面：一方一直将军（长将）判负，其他情况三次重复判和；“长捉”暂未判定
 - AI 是插件内置的搜索引擎（纯 JavaScript），不需要安装其他程序
+- 五子棋的禁手按连珠规则判定：活三指能形成活四、且形成活四的那一手本身不是禁手的三；同一条线上的两个四（如 `●·●●●·●`）也算四四
+- 五子棋 AI 是内置的五元组评估 + Alpha-Beta 搜索，困难难度单步通常不到 1 秒
 - 扫雷的坐标也只在**你自己有一盘进行中、整条消息就是坐标**时才处理；同一个人同时下象棋时，`h2e2` 这种四位坐标优先当作象棋走法
 - 官方机器人的被动回复只在用户发消息后 5 分钟内有效：扫雷 10 分钟闲置的提醒和判负消息会改用主动消息发送，受官方主动消息额度限制，可能发不出去（判定照常生效）
 
@@ -150,7 +182,7 @@ git clone --depth 1 https://github.com/Tomato-0914/Games-Plugin ./plugins/Games-
 pnpm test   # 或 npm test
 ```
 
-测试覆盖：象棋走法生成（perft）、特殊规则、记谱解析、AI；扫雷规则、求解器正确性、无猜生成；以及模拟 Yunzai 环境下的完整对局流程。
+测试覆盖：象棋走法生成（perft）、特殊规则、记谱解析、AI；五子棋禁手（三三、四四、同线四四、被堵的三、五连优先、长连）、AI；扫雷规则、求解器正确性、无猜生成；以及模拟 Yunzai 环境下的完整对局流程。
 
 每个游戏的规则在 `games/<游戏>/`，不依赖 Yunzai；`apps/` 负责指令和消息；`components/` 是共用的房间、截图、帮助图、AI 调度、配置和适配器工具。新增游戏时在 `components/Games.js` 登记，`#游戏帮助` 会自动列出。
 

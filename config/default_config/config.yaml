@@ -23,6 +23,31 @@ xiangqi:
   # 是否允许私聊人机对战
   allowPrivate: true
 
+# 五子棋
+gomoku:
+  # 发起对局后等待对手加入的时间（秒）
+  joinTimeout: 300
+  # 每步思考时间（秒），超时判负
+  moveTimeout: 120
+  # 超时前多少秒提醒一次，0 为不提醒
+  moveWarnBefore: 30
+  # 悔棋、求和、认输请求的有效时间（秒）
+  requestTimeout: 60
+  # 默认人机难度：简单 / 普通 / 困难
+  defaultAiLevel: 普通
+  # 人机对战每局可悔棋次数
+  aiUndoLimit: 3
+  # 是否允许私聊人机对战
+  allowPrivate: true
+  # 黑方禁手：三三、四四（同时成五时不算禁手）
+  forbidden: true
+  # 长连（六子及以上）：win 算赢；forbidden 黑方禁手（白方长连仍算赢）
+  overline: win
+  # 黑方下在禁手点：false 不允许落子并提示换位置；true 直接判负
+  forbiddenLoses: false
+  # 黑方回合时在棋盘上用 × 标出禁手点
+  showForbidden: true
+
 # 扫雷（单人）
 minesweeper:
   # 不写难度时的默认难度（官方机器人下会先发按钮选择）：初级 / 中级 / 高级
